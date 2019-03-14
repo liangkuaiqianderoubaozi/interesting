@@ -4,7 +4,6 @@ const root = path.resolve(__dirname, '..')
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack')
 const merge = require('webpack-merge')
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 const baseConfig = require('./base')
 
@@ -32,7 +31,6 @@ module.exports = merge(baseConfig, {
 
     /*添加热替换插件*/
     plugins: [
-        new VueLoaderPlugin(),
         new webpack.HotModuleReplacementPlugin(),
         new HtmlWebpackPlugin({
             template: path.join(root, 'index.html'), // 模板文件
