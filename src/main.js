@@ -1,8 +1,22 @@
-import Vue from 'vue/dist/vue.js'
-import Hello from './components/Hello.vue'
+import Vue from 'vue'
+import router from './router'
+import index from './index'
+import iView from 'iview'
+
+import 'iview/dist/styles/iview.css'
+
+import componentsConfig from './components/config'
+
+Vue.config.productionTip = false
+
+/*批量注册组件*/
+Vue.use(iView)
+
+
+Vue.use(componentsConfig)
 
 new Vue({
     el: '#app',
-    components: { Hello },
-    template: '<Hello/>'
+    router,
+    render: h => h(index)
 })
