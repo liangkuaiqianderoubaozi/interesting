@@ -1,12 +1,12 @@
 import dTable from "./table/customTable"
-import dSelect from "./base/baseSelect.vue"
+import dSelect from "./base/select/index.vue"
 
 
 
 
 const components = {
    'd-table': dTable,
-   'd-select': dSelect,
+   'd-select': dSelect
 };
 
 const install = function (Vue, opts = {}) {
