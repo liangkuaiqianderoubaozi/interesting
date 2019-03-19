@@ -19,7 +19,9 @@ module.exports = {
             components: path.join(root, 'src/components'),
             views: path.join(root, 'src/views'),
             styles: path.join(root, 'src/styles'),
-            store: path.join(root, 'src/store')
+            store: path.join(root, 'src/store'),
+            '@' : path.join(root, 'src/'),
+            'root' : path.join(root, ''),
         },
 
         //自动解析确定的拓展,默认值为：['.wasm', '.mjs', '.js', '.json']

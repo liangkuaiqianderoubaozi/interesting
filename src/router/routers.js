@@ -1,16 +1,18 @@
-import demo from '../views/demo.vue'
+import dictIndex from '../views/modules/dict/index.vue'
+
 import index from '../views/index.vue'
 
 
 export default [
     {
         path: '/',
-        name: 'main',
-        component: demo
+        component: index,
+        children: [
+            {
+                path: '/demo',
+                name: 'demo',
+                component: dictIndex,
+            },
+        ]
     },
-    {
-        path: '/index',
-        name: 'index',
-        component: index
-    }
 ]

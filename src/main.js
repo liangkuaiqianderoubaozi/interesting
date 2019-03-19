@@ -1,13 +1,9 @@
 import Vue from 'vue'
 import router from './router'
-
-
-import index from './index'
-
+import root from './root'
 import iView from 'iview'
 import 'iview/dist/styles/iview.css'
-
-import componentsConfig from './components/config'
+import componentsRegistryFactory from './components/componentsRegistryFactory'
 
 Vue.config.productionTip = false
 
@@ -15,10 +11,9 @@ Vue.config.productionTip = false
 Vue.use(iView)
 
 /*注册自定义组件*/
-Vue.use(componentsConfig)
+Vue.use(componentsRegistryFactory)
 
 new Vue({
-    el: '#app',
     router,
-    render: h => h(index)
-})
+    render: h => h(root)
+}).$mount('#app')
