@@ -1,19 +1,34 @@
 import Vue from 'vue'
+import 'normalize.css/normalize.css' // A modern alternative to CSS resets
+
+import Element from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+
+import '@/styles/index.scss' // global css
+
+import App from './App'
+import store from './store'
 import router from './router'
-import root from './root'
-import iView from 'iview'
-import 'iview/dist/styles/iview.css'
-import componentsRegistryFactory from './components/componentsRegistryFactory'
+
+import './icons' // icon
+import './errorLog' // error log
+import './permission' // permission control
+import './mock' // simulation data
+
+import * as filters from './filters' // global filters
+
+Vue.use(Element)
+
+// register global utility filters.
+Object.keys(filters).forEach(key => {
+  Vue.filter(key, filters[key])
+})
 
 Vue.config.productionTip = false
 
-/*注册iview*/
-Vue.use(iView)
-
-/*注册自定义组件*/
-Vue.use(componentsRegistryFactory)
-
 new Vue({
-    router,
-    render: h => h(root)
-}).$mount('#app')
+  el: '#app',
+  router,
+  store,
+  render: h => h(App)
+})
