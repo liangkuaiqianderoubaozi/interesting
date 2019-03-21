@@ -1,6 +1,13 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
+    <el-form
+      ref="loginForm"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+      auto-complete="on"
+      label-position="left"
+    >
       <div class="title-container">
         <h3 class="title">
           {{ login.title }}
@@ -38,46 +45,24 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">
+      <el-button
+        :loading="loading"
+        type="primary"
+        style="width:100%;margin-bottom:30px;"
+        @click.native.prevent="handleLogin"
+      >
         {{ login.logIn }}
       </el-button>
 
-      <div style="position:relative">
-        <div class="tips">
-          <span>{{ login.username }} : admin</span>
-          <span>{{ login.password }} : {{ login.any }}</span>
-        </div>
-        <div class="tips">
-          <span style="margin-right:18px;">
-            {{ login.username }} : editor
-          </span>
-          <span>{{ login.password }} : {{ login.any }}</span>
-        </div>
-
-        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">
-          {{ login.thirdparty }}
-        </el-button>
-      </div>
     </el-form>
-
-    <el-dialog :title="login.thirdparty" :visible.sync="showDialog">
-      {{ login.thirdpartyTips }}
-      <br>
-      <br>
-      <br>
-      <social-sign />
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import { validUsername } from '@/utils/validate'
-import LangSelect from '@/components/LangSelect'
-import SocialSign from './socialsignin'
 
 export default {
   name: 'Login',
-  components: { LangSelect, SocialSign },
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!validUsername(value)) {
@@ -94,6 +79,13 @@ export default {
       }
     }
     return {
+      login: {
+        title: '系统登录',
+        logIn: '登录',
+        username: '账号',
+        password: '密码',
+        any: '随便填'
+      },
       loginForm: {
         username: 'admin',
         password: '1111111'
@@ -115,12 +107,6 @@ export default {
       },
       immediate: true
     }
-  },
-  created() {
-    // window.addEventListener('hashchange', this.afterQRScan)
-  },
-  destroyed() {
-    // window.removeEventListener('hashchange', this.afterQRScan)
   },
   methods: {
     showPwd() {
@@ -145,39 +131,18 @@ export default {
           return false
         }
       })
-    },
-    afterQRScan() {
-      // const hash = window.location.hash.slice(1)
-      // const hashObj = getQueryObject(hash)
-      // const originUrl = window.location.origin
-      // history.replaceState({}, '', originUrl)
-      // const codeMap = {
-      //   wechat: 'code',
-      //   tencent: 'code'
-      // }
-      // const codeName = hashObj[codeMap[this.auth_type]]
-      // if (!codeName) {
-      //   alert('第三方登录失败')
-      // } else {
-      //   this.$store.dispatch('LoginByThirdparty', codeName).then(() => {
-      //     this.$router.push({ path: '/' })
-      //   })
-      // }
     }
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  /* 修复input 背景不协调 和光标变色 */
-  /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
-
-  $bg:#283443;
-  $light_gray:#eee;
+  $bg: #283443;
+  $light_gray: #eee;
   $cursor: #fff;
 
   @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
-    .login-container .el-input input{
+    .login-container .el-input input {
       color: $cursor;
       &::first-line {
         color: $light_gray;
@@ -216,71 +181,71 @@ export default {
 </style>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-$bg:#2d3a4b;
-$dark_gray:#889aa4;
-$light_gray:#eee;
+  $bg: #2d3a4b;
+  $dark_gray: #889aa4;
+  $light_gray: #eee;
 
-.login-container {
-  min-height: 100%;
-  width: 100%;
-  background-color: $bg;
-  overflow: hidden;
-  .login-form {
-    position: relative;
-    width: 520px;
-    max-width: 100%;
-    padding: 160px 35px 0;
-    margin: 0 auto;
+  .login-container {
+    min-height: 100%;
+    width: 100%;
+    background-color: $bg;
     overflow: hidden;
-  }
-  .tips {
-    font-size: 14px;
-    color: #fff;
-    margin-bottom: 10px;
-    span {
-      &:first-of-type {
-        margin-right: 16px;
+    .login-form {
+      position: relative;
+      width: 520px;
+      max-width: 100%;
+      padding: 160px 35px 0;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .tips {
+      font-size: 14px;
+      color: #fff;
+      margin-bottom: 10px;
+      span {
+        &:first-of-type {
+          margin-right: 16px;
+        }
       }
     }
-  }
-  .svg-container {
-    padding: 6px 5px 6px 15px;
-    color: $dark_gray;
-    vertical-align: middle;
-    width: 30px;
-    display: inline-block;
-  }
-  .title-container {
-    position: relative;
-    .title {
-      font-size: 26px;
-      color: $light_gray;
-      margin: 0px auto 40px auto;
-      text-align: center;
-      font-weight: bold;
+    .svg-container {
+      padding: 6px 5px 6px 15px;
+      color: $dark_gray;
+      vertical-align: middle;
+      width: 30px;
+      display: inline-block;
     }
-    .set-language {
-      color: #fff;
+    .title-container {
+      position: relative;
+      .title {
+        font-size: 26px;
+        color: $light_gray;
+        margin: 0px auto 40px auto;
+        text-align: center;
+        font-weight: bold;
+      }
+      .set-language {
+        color: #fff;
+        position: absolute;
+        top: 3px;
+        font-size: 18px;
+        right: 0px;
+        cursor: pointer;
+      }
+    }
+    .show-pwd {
       position: absolute;
-      top: 3px;
-      font-size:18px;
-      right: 0px;
+      right: 10px;
+      top: 7px;
+      font-size: 16px;
+      color: $dark_gray;
       cursor: pointer;
+      user-select: none;
+    }
+    .thirdparty-button {
+      position: absolute;
+      right: 0;
+      bottom: 6px;
     }
   }
-  .show-pwd {
-    position: absolute;
-    right: 10px;
-    top: 7px;
-    font-size: 16px;
-    color: $dark_gray;
-    cursor: pointer;
-    user-select: none;
-  }
-  .thirdparty-button {
-    position: absolute;
-    right: 0;
-    bottom: 6px;
-  }
-}
 </style>

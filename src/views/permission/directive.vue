@@ -65,6 +65,16 @@ export default {
   directives: { permission },
   data() {
     return {
+      permission: {
+        addRole: '新增角色',
+        editPermission: '编辑权限',
+        roles: '你的权限',
+        switchRoles: '切换权限',
+        tips: '在某些情况下，不适合使用 v-permission。例如：Element-UI 的 Tab 组件或 el-table-column 以及其它动态渲染 dom 的场景。你只能通过手动设置 v-if 来实现。',
+        delete: '删除',
+        confirm: '确定',
+        cancel: '取消'
+      },
       key: 1 // 为了能每次切换权限的时候重新初始化指令
     }
   },

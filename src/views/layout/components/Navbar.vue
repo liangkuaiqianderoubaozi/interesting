@@ -5,24 +5,6 @@
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-menu">
-      <template v-if="device!=='mobile'">
-        <search class="right-menu-item" />
-
-        <error-log class="errLog-container right-menu-item hover-effect" />
-
-        <screenfull class="right-menu-item hover-effect" />
-
-        <el-tooltip :content="navbar.size" effect="dark" placement="bottom">
-          <size-select class="right-menu-item hover-effect" />
-        </el-tooltip>
-
-        <lang-select class="right-menu-item hover-effect" />
-
-        <el-tooltip :content="navbar.theme" effect="dark" placement="bottom">
-          <theme-picker class="right-menu-item hover-effect" />
-        </el-tooltip>
-      </template>
-
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
           <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
@@ -34,11 +16,6 @@
               {{ navbar.dashboard }}
             </el-dropdown-item>
           </router-link>
-          <a target="_blank" href="https://github.com/PanJiaChen/vue-element-admin/">
-            <el-dropdown-item>
-              {{ navbar.github }}
-            </el-dropdown-item>
-          </a>
           <el-dropdown-item divided>
             <span style="display:block;" @click="logout">{{ navbar.logOut }}</span>
           </el-dropdown-item>
@@ -52,23 +29,11 @@
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
-import ErrorLog from '@/components/ErrorLog'
-import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
-import LangSelect from '@/components/LangSelect'
-import ThemePicker from '@/components/ThemePicker'
-import Search from '@/components/HeaderSearch'
 
 export default {
   components: {
     Breadcrumb,
-    Hamburger,
-    ErrorLog,
-    Screenfull,
-    SizeSelect,
-    LangSelect,
-    ThemePicker,
-    Search
+    Hamburger
   },
   data() {
     return {

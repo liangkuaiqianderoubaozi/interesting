@@ -1,27 +1,133 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import routes from './routers.js'
 
 Vue.use(Router)
 
-/*
-*  hash: 使用 URL hash 值来作路由。支持所有浏览器，包括不支持 HTML5 History Api 的浏览器。
-*
-*  history: 依赖 HTML5 History API 和服务器配置。查看 HTML5 History 模式。
-*
-*  abstract: 支持所有 JavaScript 运行环境，如 Node.js 服务器端。如果发现没有浏览器的 API，路由会自动强制进入这个模式
-* */
-const router = new Router({
-    routes,
-    mode: 'history'
+import Layout from '@/views/layout/Layout'
+
+import componentsRouter from './modules/components'
+import demo from './modules/demo'
+import tableRouter from './modules/table'
+
+export const constantRoutes = [
+  {
+    path: '/redirect',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '/redirect/:path*',
+        component: () => import('@/views/redirect/index')
+      }
+    ]
+  },
+  {
+    path: '/login',
+    component: () => import('@/views/login/index'),
+    hidden: true
+  },
+  {
+    path: '/404',
+    component: () => import('@/views/errorPage/404'),
+    hidden: true
+  },
+  {
+    path: '/401',
+    component: () => import('@/views/errorPage/401'),
+    hidden: true
+  },
+  {
+    path: '',
+    component: Layout,
+    redirect: 'dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        component: () => import('@/views/dashboard/index'),
+        name: 'Dashboard',
+        meta: { title: '首页', icon: 'dashboard', noCache: true, affix: true }
+      }
+    ]
+  }
+]
+
+export default new Router({
+  scrollBehavior: () => ({ y: 0 }),
+  routes: constantRoutes
 })
 
+export const asyncRoutes = [
+  {
+    path: '/permission',
+    component: Layout,
+    redirect: '/permission/index',
+    alwaysShow: true,
+    meta: {
+      title: '权限测试页',
+      icon: 'lock',
+      roles: ['admin', 'editor']
+    },
+    children: [
+      {
+        path: 'page',
+        component: () => import('@/views/permission/page'),
+        name: 'PagePermission',
+        meta: {
+          title: '页面权限',
+          roles: ['admin'] // or you can only set roles in sub nav
+        }
+      },
+      {
+        path: 'directive',
+        component: () => import('@/views/permission/directive'),
+        name: 'DirectivePermission',
+        meta: {
+          title: '指令权限'
+        }
+      },
+      {
+        path: 'role',
+        component: () => import('@/views/permission/role'),
+        name: 'RolePermission',
+        meta: {
+          title: '角色权限',
+          roles: ['admin']
+        }
+      }
+    ]
+  },
 
-router.beforeEach((to, from, next) => {
-    next()
-})
+  {
+    path: '/icon',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/svg-icons/index'),
+        name: 'Icons',
+        meta: { title: '图标', icon: 'icon', noCache: true }
+      }
+    ]
+  },
 
-router.afterEach(to => {
-})
-// 就要用到export default命令，为模块指定默认输出。
-export default router
+  componentsRouter,
+  // chartsRouter,
+  // nestedRouter,
+  demo,
+  tableRouter,
+  // treeTableRouter,
+  {
+    path: '/tab',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/tab/index'),
+        name: 'Tab',
+        meta: { title: '多页签表格', icon: 'tab' }
+      }
+    ]
+  },
+  // 捕获所有/ 404未找到路线
+  { path: '*', redirect: '/404', hidden: true }
+]
