@@ -30,39 +30,12 @@
               </template>
             </template>
             <template v-else>
+
               <render-dom :column="column" :row="scope.row" :render="column.render" :index="index" />
             </template>
           </template>
         </el-table-column>
       </template>
-      <!--endregion-->
-      <!--region 按钮操作组-->
-      <el-table-column
-        v-if="buttons.list.filter(_x=>_x.show === true).length > 0"
-        ref="fixedColumn"
-        label="操作"
-        align="center"
-        :width="buttons.width"
-        :fixed="buttons.fixed"
-      >
-        <template slot-scope="scope">
-          <div class="operate-group">
-            <template v-for="(btn, index) in buttons.list">
-              <div v-if="btn.show" :key="index" class="item">
-                <el-button
-                  :type="btn.type"
-                  size="mini"
-                  :icon="btn.icon"
-                  :disabled="btn.disabled"
-                  :plain="btn.plain"
-                  @click.native.prevent="btn.method(key,scope.row)"
-                >{{ btn.label }}
-                </el-button>
-              </div>
-            </template>
-          </div>
-        </template>
-      </el-table-column>
       <!--endregion-->
     </el-table>
 
@@ -89,6 +62,7 @@ export default {
         row: Object,
         render: Function,
         index: Number,
+        click: Function,
         column: {
           type: Object,
           default: null
@@ -113,10 +87,6 @@ export default {
       type: Array,
       default: function() { return [] }
     }, // 需要展示的列 === prop：列数据对应的属性，label：列名，align：对齐方式，width：列宽
-    buttons: {
-      type: Object,
-      default: function() { return {} }
-    }, // 操作按钮组 === label: 文本，type :类型（primary / success / warning / danger / info / text），show：是否显示，icon：按钮图标，plain：是否朴素按钮，disabled：是否禁用，method：回调方法
     options: {
       type: Object,
       default: function() {
@@ -153,8 +123,7 @@ export default {
     },
     // 显示 表格操作弹窗
     showActionTableDialog() {
-      console.log(4444)
-      this.$emit('handelAction')
+      console.info(1)
     },
     getList() {
       this.listLoading = true

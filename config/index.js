@@ -9,7 +9,12 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      '/admin': {
+        target: " http://localhost:8089",
+        pathRewrite: {'^/admin' : ''}
+      }
+    },
 
     // Various Dev Server settings
 

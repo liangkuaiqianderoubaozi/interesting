@@ -8,12 +8,6 @@
       auto-complete="on"
       label-position="left"
     >
-      <div class="title-container">
-        <h3 class="title">
-          {{ login.title }}
-        </h3>
-        <lang-select class="set-language" />
-      </div>
 
       <el-form-item prop="username">
         <span class="svg-container">
