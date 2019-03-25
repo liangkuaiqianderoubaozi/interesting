@@ -18,7 +18,6 @@
       </el-select>
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="search">搜索</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="save">添加 </el-button>
-      <el-button class="filter-item" type="primary" icon="el-icon-download" @click="exportData">导出 </el-button>
     </div>
 
     <!--表单组件-->
@@ -30,7 +29,7 @@
       :query-param="queryParam"
     />
 
-    <edit-dialog v-model="showDialog" :show-dialog.sync="showDialog" :data="entityData" />
+    <edit-dialog ref="dialog" v-model="showDialog" :show-dialog.sync="showDialog" />
 
   </div>
 </template>
@@ -39,6 +38,7 @@
 import DTable from '@/components/table'
 import editDialog from './edit'
 import { confirm } from '@/components/MessageBox/messageBox'
+import { deleteByIds } from '@/api/baseApi'
 
 export default {
   components: {
@@ -50,7 +50,7 @@ export default {
       options: { mutiSelect: true },
       showDialog: false,
       entityData: {},
-      url: '/queryPage',
+      url: '/demo/queryPage',
       method: 'post',
       queryParam: {
         content: '',
@@ -83,7 +83,7 @@ export default {
                 { props: { round: true },
                   on: {
                     click: function() {
-                      _self.entityData = params.row
+                      _self.$refs['dialog'].ruleForm = params.row
                       _self.showDialog = true
                     }
                   }
@@ -93,7 +93,9 @@ export default {
                   on: {
                     click: function() {
                       confirm({ title: '删除确认', message: '是否确定删除,删除后数据无法恢复' }, function() {
-                        console.info(params)
+                        console.info(params.row.id)
+                        deleteByIds('/demo/delete', params.row.id)
+                        _self.search()
                       })
                     }
                   }

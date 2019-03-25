@@ -9,11 +9,18 @@ export function queryList({ url, method }, pageParam = { pageSize: 15, pageNum: 
   })
 }
 
-export function fetchArticle(id) {
+export function submit(url, formParam) {
   return request({
-    url: '/article/detail',
-    method: 'get',
-    params: { id }
+    url: url,
+    method: 'post',
+    data: formParam
+  })
+}
+export function deleteByIds(url, ids) {
+  return request({
+    url: url,
+    method: 'post',
+    params: { ids: ids + ',' }
   })
 }
 

@@ -50,7 +50,7 @@
 <!--endregion-->
 <script>
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import { queryList } from '@/api/article'
+import { queryList } from '@/api/baseApi'
 
 export default {
   components: {
