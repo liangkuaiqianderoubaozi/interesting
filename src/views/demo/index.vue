@@ -2,13 +2,13 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="listQuery.title"
+        v-model="queryParam.userName"
         placeholder="标题"
         style="width: 200px;"
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
-      <el-select v-model="listQuery.type" placeholder="类型" clearable class="filter-item" style="width: 130px">
+      <el-select v-model="queryParam.content" placeholder="类型" clearable class="filter-item" style="width: 130px">
         <el-option
           v-for="item in calendarTypeOptions"
           :key="item.key"
@@ -23,21 +23,22 @@
 
     <!--表单组件-->
     <d-table
-      :list="list"
+      ref="resultTable"
+      :url="url"
       :options="options"
       :columns="columns"
-      @handleSelectionChange="handleSelectionChange"
+      :query-param="queryParam"
     />
 
     <edit-dialog v-model="showDialog" :show-dialog.sync="showDialog" :data="entityData" />
+
   </div>
 </template>
 
 <script>
 import DTable from '@/components/table'
 import editDialog from './edit'
-
-import { fetchList } from '@/api/article'
+import { confirm } from '@/components/MessageBox/messageBox'
 
 export default {
   components: {
@@ -49,10 +50,11 @@ export default {
       options: { mutiSelect: true },
       showDialog: false,
       entityData: {},
-      listQuery: {
-        importance: undefined,
-        title: undefined,
-        type: undefined
+      url: '/queryPage',
+      method: 'post',
+      queryParam: {
+        content: '',
+        userName: ''
       },
       calendarTypeOptions: [
         { key: 'CN', display_name: 'China' },
@@ -60,61 +62,55 @@ export default {
         { key: 'JP', display_name: 'Japan' },
         { key: 'EU', display_name: 'Eurozone' }
       ],
-      list: [
-        { id: '24', title: '编号3', state: 0 },
-        { id: '23', title: '编号3', state: 1 },
-        { id: '23', title: '编号3', state: 2 },
-        { id: '2', title: '编号3', state: 0 },
-        { id: '223', title: '编号3', state: 1 },
-        { id: '2444', title: '编号3', state: 1 }
-      ],
       columns: [
         {
-          prop: 'id',
+          prop: 'userName',
           label: '编号',
           align: 'center'
         },
         {
-          prop: 'state',
+          prop: 'content',
           label: '状态',
-          align: 'center',
-          render: (h, params) => {
-            return h('el-tag', {
-              props: { type: params.row.state === 0 ? 'success' : params.row.state === 1 ? 'info' : 'danger' } // 组件的props
-            }, params.row.state === 0 ? '上架' : params.row.state === 1 ? '下架' : '审核中')
-          }
+          align: 'center'
         },
         {
           label: '操作',
           align: 'center',
           render: (h, params) => {
             const _self = this
-            return h('el-button', {
-              props: {
-                round: true
-              },
-              on: {
-                click: function() {
-                  _self.entityData = params.row
-                  _self.showDialog = true
-
-                  fetchList({}).then(req => {
-                    console.info(req)
-                  })
-                }
-              }
-            }, '按钮')
+            return h('span', [
+              h('el-button',
+                { props: { round: true },
+                  on: {
+                    click: function() {
+                      _self.entityData = params.row
+                      _self.showDialog = true
+                    }
+                  }
+                }, '修改'),
+              h('el-button',
+                { props: { round: true },
+                  on: {
+                    click: function() {
+                      confirm({ title: '删除确认', message: '是否确定删除,删除后数据无法恢复' }, function() {
+                        console.info(params)
+                      })
+                    }
+                  }
+                }, '删除')
+            ])
           }
         }
       ]
     }
   },
   methods: {
-    handleSelectionChange(val) {
+    save() {
+      this.entityData = {}
+      this.showDialog = true
     },
-    save() {},
     search() {
-
+      this.$refs.resultTable.getList()
     },
     exportData() {}
   }

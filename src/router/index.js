@@ -115,19 +115,6 @@ export const asyncRoutes = [
   // nestedRouter,
   demo,
   tableRouter,
-  // treeTableRouter,
-  {
-    path: '/tab',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/tab/index'),
-        name: 'Tab',
-        meta: { title: '多页签表格', icon: 'tab' }
-      }
-    ]
-  },
   // 捕获所有/ 404未找到路线
   { path: '*', redirect: '/404', hidden: true }
 ]

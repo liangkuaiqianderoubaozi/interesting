@@ -118,7 +118,6 @@ export default {
       })
     },
     closeDialog() {
-      console.info()
       this.$emit('input', false) // 将改变通知父组件(保证父子组件数据一致
     }
   }

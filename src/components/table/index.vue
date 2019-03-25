@@ -4,9 +4,8 @@
     <el-table
       id="iTable"
       ref="mutipleTable"
-      :data="list"
+      :data="pageList"
       :stripe="options.stripe"
-      @selection-change="handleSelectionChange"
     >
       <!--region 选择框-->
       <el-table-column v-if="options.mutiSelect" type="selection" style="width: 55px;" />
@@ -42,8 +41,8 @@
     <pagination
       v-show="total>0"
       :total="total"
-      :page.sync="listQuery.page"
-      :limit.sync="listQuery.limit"
+      :page.sync="listQuery.pageNum"
+      :limit.sync="listQuery.pageSize"
       @pagination="getList"
     />
   </div>
@@ -51,7 +50,7 @@
 <!--endregion-->
 <script>
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import { fetchList } from '@/api/article'
+import { queryList } from '@/api/article'
 
 export default {
   components: {
@@ -79,10 +78,14 @@ export default {
     }
   },
   props: {
-    list: {
-      type: Array,
-      default: function() { return [] }
-    }, // 数据列表
+    url: {
+      type: String,
+      default: function() { return '' }
+    },
+    method: {
+      type: String,
+      default: function() { return 'post' }
+    },
     columns: {
       type: Array,
       default: function() { return [] }
@@ -97,44 +100,39 @@ export default {
           mutiSelect: true // 是否支持列表项选中功能
         }
       }
-    } // table 表格的控制参数
+    },
+    queryParam: {
+      type: Object,
+      default: function() {
+        return {}
+      }
+    }
   },
   // 数据
   data() {
     return {
       total: 0,
+      pageList: [],
       multipleSelection: [], // 多行选中
       listQuery: {
-        page: 1,
-        limit: 20,
-        sort: '+id'
+        pageNum: 1,
+        pageSize: 10
       }
     }
   },
-  computed: {
-  },
-  mounted() {
+  beforeMount: function() {
+    if (this.url === '') {
+      console.error('请选择查询url')
+      return
+    }
+
+    this.getList()
   },
   methods: {
-    // 多行选中
-    handleSelectionChange(val) {
-      this.multipleSelection = val
-      this.$emit('handleSelectionChange', val)
-    },
-    // 显示 表格操作弹窗
-    showActionTableDialog() {
-      console.info(1)
-    },
     getList() {
-      this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
-
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+      queryList({ url: this.url, method: this.method }, this.listQuery, this.queryParam).then(response => {
+        this.pageList = response.data.page.list
+        this.total = response.data.page.total
       })
     }
   }

@@ -1,10 +1,11 @@
 import request from '@/utils/request'
 
-export function fetchList(query) {
+export function queryList({ url, method }, pageParam = { pageSize: 15, pageNum: 1 }, queryParam = {}) {
   return request({
-    url: '/getdemo',
-    method: 'get',
-    params: query
+    url: url,
+    method: method,
+    params: pageParam,
+    data: queryParam
   })
 }
 
