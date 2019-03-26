@@ -111,8 +111,6 @@ export const asyncRoutes = [
   },
 
   componentsRouter,
-  // chartsRouter,
-  // nestedRouter,
   demo,
   tableRouter,
   // 捕获所有/ 404未找到路线
