@@ -13,7 +13,7 @@ const Demo = {
   children: [
     {
       path: 'dynamic-table',
-      component: () => import('@/views/demo/index'),
+      component: () => import('@/views/modules/demo/index'),
       name: 'DynamicTable',
       meta: { title: 'demo' }
     }

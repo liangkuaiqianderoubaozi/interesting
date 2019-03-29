@@ -1,6 +1,5 @@
 import Mock from 'mockjs'
 import { deepClone } from '@/utils'
-import { filterAsyncRoutes } from '@/store/modules/permission'
 import { asyncRoutes, constantRoutes } from '@/router'
 
 const routes = deepClone([...constantRoutes, ...asyncRoutes])
@@ -15,8 +14,7 @@ const roles = [
   {
     key: 'editor',
     name: 'editor',
-    description: 'Normal Editor. Can see all pages except permission page',
-    routes: filterAsyncRoutes(routes, ['editor'])
+    description: 'Normal Editor. Can see all pages except permission page'
   },
   {
     key: 'visitor',

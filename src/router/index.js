@@ -6,7 +6,6 @@ Vue.use(Router)
 import Layout from '@/views/layout/Layout'
 
 import componentsRouter from './modules/components'
-import demo from './modules/demo'
 import tableRouter from './modules/table'
 
 export const constantRoutes = [
@@ -111,7 +110,6 @@ export const asyncRoutes = [
   },
 
   componentsRouter,
-  demo,
   tableRouter,
   // 捕获所有/ 404未找到路线
   { path: '*', redirect: '/404', hidden: true }

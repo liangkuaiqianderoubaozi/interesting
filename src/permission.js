@@ -20,7 +20,6 @@ router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
   if (getToken()) {
     // determine if there has token
-
     /* has token*/
     if (to.path === '/login') {
       next({ path: '/' })
@@ -32,8 +31,8 @@ router.beforeEach((to, from, next) => {
           .dispatch('GetUserInfo')
           .then(res => {
             // 拉取user_info
-            const roles = res.data.roles // note: roles must be a object array! such as: [{id: '1', name: 'editor'}, {id: '2', name: 'developer'}]
-            store.dispatch('GenerateRoutes', { roles }).then(accessRoutes => {
+            // const roles = res.data.roles // note: roles must be a object array! such as: [{id: '1', name: 'editor'}, {id: '2', name: 'developer'}]
+            store.dispatch('GenerateRoutes').then(accessRoutes => {
               // 根据roles权限生成可访问的路由表
               router.addRoutes(accessRoutes) // 动态添加可访问路由表
               next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
