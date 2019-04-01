@@ -31,24 +31,30 @@ function findOts(data) {
   }
 }
 
-function createRouterMenu(data, id) {
+function registerComponent(data, id) {
+  if (!data.url) { data.url = '/' + data.id }
+
   if (data.pid === id) {
-    data.url = '/' + data.id
     data.component = Layout
   } else {
     // todo 组件路径必须唯一
     data.component = () => import('@/views/modules/demo/index')
   }
-  if (data.url) { data.path = data.url }
+  data.path = data.url
   data.meta = { title: 'demo', icon: 'table' }
 
   if (data.children) {
-    data.children.forEach((item) => {
-      createRouterMenu(item, id)
-    })
+    for (var i = data.children.length - 1; i >= 0; i--) {
+      if (data.children[i].type !== 'button') {
+        registerComponent(data.children[i], id)
+      } else {
+        if (data.buttons === undefined) { data.buttons = [] }
+        data.buttons.push(data.children[i])
+        data.children.splice(i, 1)
+      }
+    }
   }
 }
-
 const permission = {
   state: {
     routes: [],
@@ -69,8 +75,8 @@ const permission = {
         }).then(response => {
           /* 找到ots项目*/
           const otsProject = findOts(response.data.resources[0])
-          /* 处理菜单的数据*/
-          createRouterMenu(otsProject, otsProject.id)
+          /* 注册组件*/
+          registerComponent(otsProject, otsProject.id)
 
           let menus = otsProject
 
@@ -78,6 +84,7 @@ const permission = {
           if (projectConfig.openDemo) {
             menus = otsProject.children.concat(asyncRoutes)
           }
+
           // 提交到vuex
           commit('SET_ROUTES', menus)
           resolve(menus)

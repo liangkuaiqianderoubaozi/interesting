@@ -20,7 +20,7 @@ service.interceptors.request.use(
   config => {
     // Do something before request is sent
     if (store.getters.token) {
-      setCookies('jsid', '2cf5ee76-e4f9-497e-bc11-76698b6ddfec')
+      setCookies('jsid', '6a4ef14a-2f0d-41f1-9818-5f6423e32b98')
       // 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
       config.headers['X-Token'] = getToken()
     }
