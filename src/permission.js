@@ -19,25 +19,22 @@ const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
   if (getToken()) {
-    // determine if there has token
-    /* has token*/
     if (to.path === '/login') {
       next({ path: '/' })
       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
     } else {
       if (store.getters.roles.length === 0) {
-        // 判断当前用户是否已拉取完user_info信息
-        store
-          .dispatch('GetUserInfo')
-          .then(res => {
-            // 拉取user_info
-            // const roles = res.data.roles // note: roles must be a object array! such as: [{id: '1', name: 'editor'}, {id: '2', name: 'developer'}]
-            store.dispatch('GenerateRoutes').then(accessRoutes => {
-              // 根据roles权限生成可访问的路由表
+        // 拉取user_info
+        store.dispatch('GetUserInfo').then(res => {
+          // 根据roles权限生成可访问的路由表
+          store.dispatch('GenerateRoutes').then(accessRoutes => {
+            /* 保存路由路径和按钮的关系 */
+            store.dispatch('setResourceButtons', accessRoutes).then(() => {
               router.addRoutes(accessRoutes) // 动态添加可访问路由表
               next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
             })
           })
+        })
           .catch(err => {
             store.dispatch('FedLogOut').then(() => {
               Message.error(err)
@@ -66,6 +63,7 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-router.afterEach(() => {
+router.afterEach((to, from) => {
+  store.dispatch('setRouterPath', to.path)
   NProgress.done() // finish progress bar
 })

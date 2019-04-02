@@ -3,21 +3,14 @@ import store from '@/store'
 
 export default {
   inserted(el, binding, vnode) {
-    const { value } = binding
-    const roles = store.getters && store.getters.roles
+    let currentRouterButton = {}
+    store.getters.routerButtonsMapping.filter((item) => {
+      if (item.routerMapping === store.getters.routerPath) { currentRouterButton = item }
+    })
 
-    if (value && value instanceof Array && value.length > 0) {
-      const permissionRoles = value
-
-      const hasPermission = roles.some(role => {
-        return permissionRoles.includes(role)
-      })
-
-      if (!hasPermission) {
-        el.parentNode && el.parentNode.removeChild(el)
-      }
-    } else {
-      throw new Error(`need roles! Like v-permission="['admin','editor']"`)
+    // 菜单下没有一个按钮，或者当前菜单下面的按钮没有这个时
+    if (!currentRouterButton.buttons || (currentRouterButton.buttons.indexOf(binding.value) === -1)) {
+      return el.parentNode && el.parentNode.removeChild(el)
     }
   }
 }

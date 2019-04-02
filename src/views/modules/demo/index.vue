@@ -15,9 +15,10 @@
           :label="item.display_name+'('+item.key+')'"
           :value="item.key"
         />
-      </el-select>
-      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="search">搜索</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="save">添加 </el-button>
+      </el-select>1
+      <el-button v-permission="'删除'" class="filter-item" type="primary" icon="el-icon-search" @click="search">删除</el-button>
+      <el-button v-permission="'搜索'" class="filter-item" type="primary" icon="el-icon-search" @click="search">搜索</el-button>
+      <el-button v-permission="'新增'" class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="save">新增 </el-button>
     </div>
 
     <!--表单组件-->
@@ -35,6 +36,7 @@
 </template>
 
 <script>
+import permission from '@/directive/permission/index.js' // 权限判断指令
 import DTable from '@/components/table'
 import editDialog from './edit'
 import { confirm } from '@/components/MessageBox/messageBox'
@@ -45,6 +47,7 @@ export default {
     'd-table': DTable,
     'edit-dialog': editDialog
   },
+  directives: { permission },
   data() {
     return {
       options: { mutiSelect: true },
