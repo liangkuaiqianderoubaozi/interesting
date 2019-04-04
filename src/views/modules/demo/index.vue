@@ -67,8 +67,15 @@ export default {
       ],
       columns: [
         {
-          prop: 'userName',
           label: '编号',
+          align: 'center',
+          render: (h, params) => {
+            return h('span', {}, params.index)
+          }
+        },
+        {
+          prop: 'userName',
+          label: '用户名',
           align: 'center'
         },
         {
@@ -102,7 +109,15 @@ export default {
                       })
                     }
                   }
-                }, '删除')
+                }, '删除'),
+              h('el-button',
+                { props: { round: true },
+                  on: {
+                    click: function() {
+                      _self.$router.push({ name: 'ddddd', params: { id: 111 }})
+                    }
+                  }
+                }, '跳转')
             ])
           }
         }

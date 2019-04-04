@@ -95,7 +95,6 @@ export const asyncRoutes = [
       }
     ]
   },
-
   {
     path: '/icon',
     component: Layout,
@@ -107,6 +106,20 @@ export const asyncRoutes = [
         meta: { title: '图标', icon: 'icon', noCache: true }
       }
     ]
+  },
+  {
+    path: '/icodddn',
+    component: Layout,
+    children: [
+      {
+        path: 'edit2',
+        component: () => import('@/views/modules/demo/edit2'),
+        name: 'ddddd',
+        meta: { title: 'edit2', noCache: true },
+        hidden: true
+      }
+    ],
+    hidden: true
   },
 
   componentsRouter,

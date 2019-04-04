@@ -11,7 +11,7 @@
       <el-table-column v-if="options.mutiSelect" type="selection" style="width: 55px;" />
       <!--endregion-->
       <!--region 数据列-->
-      <template v-for="(column, index) in columns">
+      <template v-for="(column) in columns">
         <el-table-column
           :key="column.label"
           :prop="column.prop"
@@ -30,7 +30,7 @@
             </template>
             <template v-else>
 
-              <render-dom :column="column" :row="scope.row" :render="column.render" :index="index" />
+              <render-dom :column="column" :row="scope.row" :render="column.render" :index="scope.$index+1" />
             </template>
           </template>
         </el-table-column>
