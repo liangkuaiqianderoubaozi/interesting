@@ -6,6 +6,7 @@
       ref="mutipleTable"
       :data="pageList"
       :stripe="options.stripe"
+      @selection-change="handleSelectionChange"
     >
       <!--region 选择框-->
       <el-table-column v-if="options.mutiSelect" type="selection" style="width: 55px;" />
@@ -78,6 +79,7 @@ export default {
     }
   },
   props: {
+    selectChange: Function,
     url: {
       type: String,
       default: function() { return '' }
@@ -129,6 +131,9 @@ export default {
     this.getList()
   },
   methods: {
+    handleSelectionChange(val) {
+      this.selectChange(val)
+    },
     getList() {
       queryList({ url: this.url, method: this.method }, this.listQuery, this.queryParam).then(response => {
         this.pageList = response.data.page.list

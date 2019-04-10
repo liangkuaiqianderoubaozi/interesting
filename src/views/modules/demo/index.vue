@@ -28,6 +28,7 @@
       :options="options"
       :columns="columns"
       :query-param="queryParam"
+      :select-change="selectChange"
     />
 
     <edit-dialog ref="dialog" v-model="showDialog" :show-dialog.sync="showDialog" />
@@ -128,6 +129,9 @@ export default {
     save() {
       this.entityData = {}
       this.showDialog = true
+    },
+    selectChange(val) {
+      console.info(val)
     },
     search() {
       this.$refs.resultTable.getList()
