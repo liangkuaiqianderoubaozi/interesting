@@ -51,6 +51,7 @@ export const constantRoutes = [
 ]
 
 export default new Router({
+  mode: 'history',
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })
