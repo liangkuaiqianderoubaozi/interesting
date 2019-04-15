@@ -38,7 +38,7 @@ function registerComponent(data, id) {
     data.component = Layout
   } else {
     // todo 组件路径必须唯一
-    data.component = () => import('@/views/modules/demo/index')
+    data.component = () => import(`@/views/modules/${data.url}.vue`)
   }
   data.path = data.url
   data.meta = { title: 'demo', icon: 'table' }
@@ -68,6 +68,7 @@ const permission = {
   },
   actions: {
     GenerateRoutes({ commit }) {
+      console.info(1)
       return new Promise(resolve => {
         request({
           url: projectConfig.resourcesUrl,
