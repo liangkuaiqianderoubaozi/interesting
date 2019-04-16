@@ -4,11 +4,16 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css'
 import projectConfig from '@/projectConfig'
 import { isLogin } from '@/api/baseApi'
-
+import Cookies from 'js-cookie'
 NProgress.configure({ showSpinner: false })
 
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
+  /* 获取url的Jsid*/
+  const token = getQueryVariable('jsid')
+  if (token) {
+    Cookies.set('jsid', token)
+  }
   isLogin().then(response => {
     if (response.data.success) {
       /* 菜单未加载过*/
@@ -37,3 +42,14 @@ router.afterEach((to, from) => {
   NProgress.done()
 })
 
+function getQueryVariable(variable) {
+  var query = window.location.search.substring(1)
+  var vars = query.split('&')
+  for (var i = 0; i < vars.length; i++) {
+    var pair = vars[i].split('=')
+    if (pair[0] === variable) {
+      return pair[1]
+    }
+  }
+  return (false)
+}
