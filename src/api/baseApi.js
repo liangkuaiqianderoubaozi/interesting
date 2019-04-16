@@ -47,3 +47,9 @@ export function updateArticle(data) {
     data
   })
 }
+export function isLogin() {
+  return request({
+    url: '/login',
+    method: 'post'
+  })
+}

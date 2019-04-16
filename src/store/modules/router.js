@@ -19,7 +19,8 @@ function createButtonsMapping(data, array) {
 const router = {
   state: {
     routerButtonsMapping: [],
-    routerPath: ''
+    routerPath: '',
+    routerGenerate: Boolean
   },
   mutations: {
     SET_ROUTER_BUTTON_MAPPING: (state, routerButtonsMapping) => {
@@ -27,17 +28,25 @@ const router = {
     },
     SET_ROUTER_PATH: (state, routerPath) => {
       state.routerPath = routerPath
+    },
+    SET_ROUTER_GENERATE: (state, routerGenerate) => {
+      state.routerGenerate = routerGenerate
     }
   },
   actions: {
-    setResourceButtons({ commit }, resources) {
+    SET_RESOURCES_BUTTON({ commit }, resources) {
       var buttonsMapping = []
       resources.forEach((item) => {
         createButtonsMapping(item, buttonsMapping)
       })
+      /* 是否生成了菜单*/
+      commit('SET_ROUTER_GENERATE', true)
       commit('SET_ROUTER_BUTTON_MAPPING', buttonsMapping)
     },
-    setRouterPath({ commit }, path) {
+    SET_ROUTER_GENERATE({ commit }, flag) {
+      commit('SET_ROUTER_GENERATE', flag)
+    },
+    SET_RESOURCES_PATH({ commit }, path) {
       commit('SET_ROUTER_PATH', path)
     }
   }

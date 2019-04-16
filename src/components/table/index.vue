@@ -79,7 +79,10 @@ export default {
     }
   },
   props: {
-    selectChange: Function,
+    selectChange: {
+      type: Function,
+      default: function() { return function() {} }
+    },
     url: {
       type: String,
       default: function() { return '' }

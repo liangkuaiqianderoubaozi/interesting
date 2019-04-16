@@ -32,16 +32,17 @@ function findOts(data) {
 }
 
 function registerComponent(data, id) {
-  if (!data.url) { data.url = '/' + data.id }
+  if (!data.url) {
+    data.url = '/' + data.id
+  }
 
   if (data.pid === id) {
     data.component = Layout
   } else {
-    // todo 组件路径必须唯一
-    data.component = () => import(`@/views/modules/${data.url}.vue`)
+    data.component = () => import(`@/views/modules${data.url}.vue`)
   }
   data.path = data.url
-  data.meta = { title: 'demo', icon: 'table' }
+  data.meta = { title: data.name, icon: 'table' }
 
   if (data.children) {
     for (var i = data.children.length - 1; i >= 0; i--) {
@@ -67,8 +68,7 @@ const permission = {
     }
   },
   actions: {
-    GenerateRoutes({ commit }) {
-      console.info(1)
+    GENERATE_ROUTERS({ commit }) {
       return new Promise(resolve => {
         request({
           url: projectConfig.resourcesUrl,

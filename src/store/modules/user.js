@@ -82,13 +82,19 @@ const user = {
     // 登出
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
+        logout().then(() => {
+          commit('SET_ROUTER_GENERATE', false)
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])
           removeToken()
           resolve()
         }).catch(error => {
-          reject(error)
+          /* 401表示登陆未成功*/
+          if (error.response.status === 401) {
+            resolve()
+          } else {
+            reject(error)
+          }
         })
       })
     },

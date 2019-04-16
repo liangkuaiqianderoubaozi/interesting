@@ -10,10 +10,10 @@ import App from './App'
 import store from './store'
 import router from './router'
 
-import './icons' // icon
-import './errorLog' // error log
-import './permission' // permission control
-import './mock' // simulation data
+import './icons'
+import './errorLog'
+import './permission'
+import './mock'
 
 import * as filters from './filters' // global filters
 

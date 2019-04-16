@@ -18,7 +18,7 @@
       </el-select>
       <el-button v-permission="'删除'" class="filter-item" type="primary" icon="el-icon-search" @click="search">删除</el-button>
       <el-button v-permission="'搜索'" class="filter-item" type="primary" icon="el-icon-search" @click="search">搜索</el-button>
-      <el-button v-permission="'新增'" class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="save">新增 </el-button>
+      <el-button v-permission="'新增'" class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="save">新增</el-button>
     </div>
 
     <!--表单组件-->

@@ -16,6 +16,7 @@ const getters = {
   addRoutes: state => state.permission.addRoutes,
   routerPath: state => state.router.routerPath,
   routerButtonsMapping: state => state.router.routerButtonsMapping,
+  routerGenerate: state => state.router.routerGenerate,
   errorLogs: state => state.errorLog.logs
 }
 export default getters
