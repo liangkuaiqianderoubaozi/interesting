@@ -2,7 +2,6 @@ import router from './router'
 import store from './store'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css'
-import projectConfig from '@/projectConfig'
 import { isLogin } from '@/api/baseApi'
 import Cookies from 'js-cookie'
 NProgress.configure({ showSpinner: false })
@@ -30,7 +29,7 @@ router.beforeEach((to, from, next) => {
       }
     } else {
       store.dispatch('SET_ROUTER_GENERATE', false).then(() => {
-        window.location.href = response.data.authenticateUrl + '?authenticateUrl=' + window.location.origin + projectConfig.indexUrl
+        window.location.href = response.data.authenticateUrl
       })
     }
     next()

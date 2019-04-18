@@ -4,5 +4,4 @@ export default {
   resourcesUrl: '/demo/getCurrentUser', // 查询当前用户资源的url
   authUrl: 'http://localhost', // 认证地址
   indexUrl: '/dashboard'// 登陆成功后的地址
-
 }
