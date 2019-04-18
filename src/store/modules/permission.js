@@ -17,18 +17,20 @@ import projectConfig from '@/projectConfig'
 //   }
 // }
 
-function findOts(data) {
-  if (data.name === projectConfig.name) {
-    return data
+function findOts(data, project) {
+  if (!data.children) {
+    return
   }
-
-  if (data.children) {
-    let otsProject = null
-    data.children.forEach((item) => {
-      otsProject = findOts(item)
-    })
-    return otsProject
+  for (var i = 0; i < data.children.length; i++) {
+    if (data.children[i].name === projectConfig.name) {
+      project = data.children[i]
+      break
+    }
+    if (data.children[i]) {
+      findOts(data.children[i], project)
+    }
   }
+  return project
 }
 
 function registerComponent(data, id) {
@@ -54,6 +56,8 @@ function registerComponent(data, id) {
         data.children.splice(i, 1)
       }
     }
+  } else {
+    data.children = []
   }
 }
 const permission = {
