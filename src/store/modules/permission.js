@@ -22,7 +22,7 @@ function findOts(data, project) {
     return
   }
   for (var i = 0; i < data.children.length; i++) {
-    if (data.children[i].name === projectConfig.name) {
+    if (data.children[i].code === projectConfig.code) {
       project = data.children[i]
       break
     }
