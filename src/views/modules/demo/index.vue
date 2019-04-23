@@ -54,7 +54,7 @@ export default {
       options: { mutiSelect: true },
       showDialog: false,
       entityData: {},
-      url: '/demo/queryPage',
+      url: '/queryPage',
       method: 'post',
       queryParam: {
         content: '',

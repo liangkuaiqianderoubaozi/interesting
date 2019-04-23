@@ -1,8 +1,8 @@
 import { asyncRoutes, constantRoutes } from '@/router'
 import request from '@/utils/request'
-import Layout from '@/views/layout/Layout'
+import Layout from '@/views/modules/common/layout/Layout'
 
-import projectConfig from '@/projectConfig'
+import config from '@/config'
 
 // /**
 //  * 通过meta.role判断是否与当前用户权限匹配
@@ -22,7 +22,7 @@ function findOts(data, project) {
     return
   }
   for (var i = 0; i < data.children.length; i++) {
-    if (data.children[i].code === projectConfig.code) {
+    if (data.children[i].code === config.code) {
       project = data.children[i]
       break
     }
@@ -75,7 +75,7 @@ const permission = {
     GENERATE_ROUTERS({ commit }) {
       return new Promise(resolve => {
         request({
-          url: projectConfig.resourcesUrl,
+          url: config.resourcesUrl,
           method: 'post'
         }).then(response => {
           /* 找到ots项目*/
@@ -86,7 +86,7 @@ const permission = {
           let menus = otsProject
 
           // 是否开启demo
-          if (projectConfig.openDemo) {
+          if (config.openDemo) {
             menus = otsProject.children.concat(asyncRoutes)
           }
 
