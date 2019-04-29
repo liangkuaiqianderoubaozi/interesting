@@ -51,7 +51,9 @@ function registerComponent(data, id) {
       if (data.children[i].type !== 'button') {
         registerComponent(data.children[i], id)
       } else {
-        if (data.buttons === undefined) { data.buttons = [] }
+        if (data.buttons === undefined) {
+          data.buttons = []
+        }
         data.buttons.push(data.children[i])
         data.children.splice(i, 1)
       }
@@ -60,6 +62,7 @@ function registerComponent(data, id) {
     data.children = []
   }
 }
+
 const permission = {
   state: {
     routes: [],
@@ -74,12 +77,9 @@ const permission = {
   actions: {
     GENERATE_ROUTERS({ commit }) {
       return new Promise(resolve => {
-        request({
-          url: config.resourcesUrl,
-          method: 'post'
-        }).then(response => {
+        getResources().then(data => {
           /* 找到ots项目*/
-          const otsProject = findOts(response.data.resources[0])
+          const otsProject = findOts(data.resources[0])
           /* 注册组件*/
           registerComponent(otsProject, otsProject.id)
 
@@ -97,6 +97,22 @@ const permission = {
       })
     }
   }
+}
+
+function getResources() {
+  return new Promise((resolve) => {
+    if (sessionStorage.getItem('userMenu')) {
+      resolve(JSON.parse(sessionStorage.getItem('userMenu')))
+    } else {
+      request({
+        url: config.resourcesUrl,
+        method: 'post'
+      }).then(response => {
+        sessionStorage.setItem('userMenu', JSON.stringify(response.data))
+        resolve(response.data)
+      })
+    }
+  })
 }
 
 export default permission
