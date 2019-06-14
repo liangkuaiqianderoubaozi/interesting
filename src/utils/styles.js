@@ -1,8 +1,0 @@
-import '@/assets/css/global/classes/colors.scss'
-import '@/assets/css/global/classes/font-sizes.scss'
-import '@/assets/css/global/classes/iconfont.scss'
-import '@/assets/css/global/components/example.scss'
-import '@/assets/css/global/objects/grid.scss'
-import '@/assets/css/global/objects/media.scss'
-import '@/assets/css/global/reset/index.scss'
-import '@/assets/css/iview/index.less'
