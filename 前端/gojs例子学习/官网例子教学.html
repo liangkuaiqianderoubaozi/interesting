@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Tiger Drawing in GoJS</title>
+    <meta name="description" content="Importing some SVG as GoJS Shapes."/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./go.js"></script>
+</head>
+<script>
+
+    //Execute a JavaScript immediately after a page has been loaded 页面加载完成后执行javaScript
+    function init() {
+        //go.xxx 是gojs的命名空间,go.GraphObject.make,是构建gojs对象
+        var $ = go.GraphObject.make;
+
+        //$(go.Diagram, "myDiagramDiv") = go.GraphObject.make(go.Diagram, "myDiagramDiv")
+        var myDiagram = $(go.Diagram, "myDiagramDiv", {
+            "undoManager.isEnabled": true // 启动ctrl-z回退,ctrl-y快进
+        })
+
+        //$(go.Model) = go.GraphObject.make(go.Model)
+        //gojs：mv架构 ,v = diagram,m = model
+        var myModel = $(go.Model)//创建model
+
+        //创建数据
+        myModel.nodeDataArray = [
+            {key: "Alpha"},
+            {key: "Beta"},
+            {key: "Gamma"}
+        ]
+
+        //model绑定
+        myDiagram.model = myModel
+
+
+        //管理画板的节点模板。画布上的节点超类:node
+        myDiagram.nodeTemplate = $(
+            go.Node, //绘制node节点,go.GraphObject.make(node,childNode)
+            //TextBlocks(文字)，Shapes(几何图形)和Pictures(图片)是GoJS的原始构建块。
+            $(go.TextBlock, new go.Binding("text", "key"))//被包含的节点
+        )
+
+        //go.GraphObject.make(要创建的对象,属性....)
+        myDiagram.nodeTemplate = $(
+            go.Node,//创建node节点
+            "Vertical",//
+            {locationSpot: go.Spot.Center},//属性
+            new go.Binding("location", "loc"),//将node.location设置为node.data.loc
+            //包含的节点
+            $(
+                go.Shape,//图形
+                "RoundedRectangle",
+                {},//设置属性
+                new go.Binding("figure", "无花果")
+            ),
+            //包含节点2
+            $(
+                go.TextBlock,
+                "默认文本",
+                {},//属性
+                new go.Binding("text", "钥匙")
+            )
+        )
+
+        //创建模板2
+        myDiagram.nodeTemplate = $(
+            go.Node, "Horizontal",
+            {background: "#44CCFF"},
+            $(go.Picture, {
+                margin: 10,
+                width: 50,
+                height: 50,
+                background: "red"
+            }, new go.Binding("sources")),//绑定属性,相当于setProperties
+            $(go.TextBlock, "默认文本", {
+                margin: 12,
+                stroke: "white",
+                font: "bold 16px sans-serif"
+            }, new go.Binding("text", "name"))//绑定文本显示数据的字段
+        )
+
+        var model = $(go.Model)
+        model.nodeDataArray = [
+            {name: "apple", source: "./images/apple.png"},
+            {name: "meat", source: "./images/meat.png"},
+            {name: "potato", source: "./images/potato.png"}
+        ]
+
+        myDiagram.model = model
+
+
+        //树链接，GraphLinksModel允许您在节点之间拥有任意数量的链接，朝向任何方向。可能有十个链路从A到B运行，另外三个从B到A运行相反的方式。
+        var linkModel = $(go.GraphLinksModel)
+        linkModel.nodeDataArray = [
+            {key: "A"},
+            {key: "B"},
+            {key: "C"}
+        ]
+
+        linkModel.linkDataArray = [
+            {from: "A", to: "B"},
+            {from: "B", to: "C"}
+        ]
+
+
+        //model中后一个会覆盖前一个
+        myDiagram.model = linkModel
+
+        //树链接节点
+        var treeModel = $(go.TreeModel)
+        treeModel.nodeDataArray = [
+            {key: "a", name: "ddd"},
+            {key: "b", name: "fff", parent: "a"},
+            {key: "o", name: "fff", parent: "a"},
+            {key: "c", name: "ccc", parent: "b"}
+        ]
+        myDiagram.model = treeModel
+
+        //创建树节点的布局
+        myDiagram.layout = $(go.TreeLayout, {angle: 90, layerSpacing: 35})
+
+        //创建链接的模板也就是线的模板
+        myDiagram.linkTemplate = $(
+            go.Link,
+            {routing: go.Link.Orthogonal, corner: 5},
+            //链接形状//如果我们想要一个箭头，我们还会添加另一个带有toArrow定义的Shape：// $（go。 Shape，{toArrow：“Standard”，stroke：null}
+            $(go.Shape, {strokeWidth: 3, stroke: "#555"})
+        )
+
+    }
+</script>
+<body onload="init()">
+<div id="myDiagramDiv" style="border: solid 1px black; width:99%; height:500px"></div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Tiger Drawing in GoJS</title>
+    <meta name="description" content="Importing some SVG as GoJS Shapes."/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./go.js"></script>
+    <script src="./PolygonDrawingTool.js"></script>
+    <script src="./GeometryReshapingTool.js"></script>
+    <script>
+
+        function init() {
+            if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+            var $ = go.GraphObject.make;  // for conciseness in defining templates
+
+            myDiagram = $(go.Diagram, "myDiagramDiv",
+                {
+                    //允许左侧调色板中的节点拖入右侧图表绘制区
+                    allowDrop: true,
+                    allowZoom: true,
+                    allowVerticalScroll: false,
+                    //禁止动画效果
+                    "animationManager.isEnabled": false,
+                    "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+                    initialContentAlignment: go.Spot.Center,
+                    "grid.visible": true,
+                    "undoManager.isEnabled": true,
+                });
+            //创建模板2
+            myDiagram.nodeTemplate = $(
+                go.Part,"Horizontal",
+                $(go.Picture, new go.Binding("source", "url")),
+                $(go.TextBlock, new go.Binding("text", "name"))
+            )
+            var model = $(go.Model)
+            model.nodeDataArray = [
+                {url: "./images/meat.png", name: "测试图片"}
+            ]
+
+            //创建图形工具
+            var tool = new PolygonDrawingTool();
+
+            //配置属性
+            tool.archetypePartData = {fill: "yellow", stroke: "blue", strokeWidth: 3, category: "Horizontal"};
+            tool.isPolygon = true;
+            //添加到图形的工具管理集合中
+            myDiagram.toolManager.mouseDownTools.insertAt(0, tool);
+            myDiagram.model = model
+
+        }
+
+        function mode(draw, polygon) {
+            //选中第0个工具
+            var tool = myDiagram.toolManager.mouseDownTools.elt(0);
+
+            //设置属性
+            tool.isEnabled = draw;
+            tool.isPolygon = polygon;
+            tool.archetypePartData.fill = (polygon ? "yellow" : null);
+            tool.temporaryShape.fill = (polygon ? "yellow" : null);
+        }
+    </script>
+</head>
+<body onload="init()">
+<div id="sample">
+    <button onclick="mode(true, true)">Draw Polygon</button>
+    <div id="myDiagramDiv" style="border: solid 1px black; width:99%; height:500px"></div>
+</div>
+</body>
+</html>

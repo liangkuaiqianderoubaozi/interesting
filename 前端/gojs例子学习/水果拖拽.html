@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>拖拽效果</title>
+    <link rel="stylesheet" type="text/css" href="./index.css">
+    <script src="./go.js"></script>
+    <script id="code">
+        function init() {
+
+            //绘制笔
+            var $ = go.GraphObject.make;
+
+            //根据nodeType值查询对应的文本
+            //当nodeType值为0时，表示苹果
+            //当nodeType值为1时，表示桃子
+            //当nodeType值为2时，表示土豆
+            //当nodeType值为3时，表示肉
+            //根据groupType值确定东西属于哪个篮子，且groupType与nodeType是一一对应的
+            //当groupType值为0时，表示存放苹果的篮子
+            //当groupType值为1时，表示存放桃子的篮子
+            //当groupType值为2时，表示存放土豆的篮子
+            //当groupType值为3时，表示存放肉的篮子
+            //当groupType值为4时，表示存放水果的篮子
+            var arrayText = ["苹果", "桃子", "土豆", "肉"];
+
+            //组的类型
+            //记录不同类型节点的数量
+            var numApple = 0;//苹果的数量
+            var numPeach = 0;//桃子的数量
+            var numPotato = 0;//土豆的数量
+            var numMeat = 0;//肉的数量
+
+            //标记当前正在拖动的节点
+            var dragNode = null;
+
+            //在id属性值为"myDiagramDiv"的div标签上绘制图表
+            myDiagram = $(go.Diagram, "myDiagramDiv",
+                {
+                    //允许左侧调色板中的节点拖入右侧图表绘制区
+                    allowDrop: true,
+
+                    //禁止动画效果
+                    "animationManager.isEnabled": false,
+
+                    initialContentAlignment: go.Spot.Center,
+
+                    //显示网格
+                    "grid.visible": true,
+
+                    //启动Ctrl+Z（撤销）、Ctrl+Y（恢复）
+                    "undoManager.isEnabled": true,
+
+                    //使用网格
+                    grid: $(go.Panel, "Grid",
+                        {
+                            background: "white"
+                        },
+                        $(go.Shape, "LineH", {stroke: "#F2F2F2"}),
+                        $(go.Shape, "LineV", {stroke: "#F2F2F2"})
+                    ),
+
+                    //当将节点拖入右侧图表绘制区并松开鼠标时会触发mouseDrop
+                    mouseDrop: function (e, obj) {
+
+                        //isAdd用于标记当前选中的节点是否添加到了容器中
+                        //如果isAdd为true，表示节点添加到了容器中
+                        //如果isAdd为false，表示节点没有添加到容器中
+                        var isAdd = e.diagram.selection.Th.value.data.isAdd;
+
+                        //如果节点没有添加到对应的容器中
+                        if (!isAdd) {
+
+                            //删除当前选中的节点
+                            myDiagram.commandHandler.deleteSelection();
+                        }
+                    }
+                });
+
+            //屏蔽Ctrl+C（复制）、Ctrl+V（粘贴）、Ctrl+X（剪切）
+            myDiagram.commandHandler.doKeyDown = function() {
+                var e = myDiagram.lastInput;
+                var control = e.control || e.meta;
+                var key = e.key;
+
+                if (control && (key === 'C' || key === 'V' || key === 'X')) {
+                    return;
+                }
+
+                go.CommandHandler.prototype.doKeyDown.call(this);
+            }
+
+            //当将节点拖动到右侧的图表绘制区会触发
+            myDiagram.addDiagramListener("ExternalObjectsDropped", function (e) {
+
+                unSelectAllNode();
+
+                if (e.subject.Ea === null) {
+                    return;
+                }
+
+                //设置节点的属性
+                var node = e.subject.Ea.key.Zd;
+                var nodes = myDiagram.model.hg;
+                myDiagram.model.setDataProperty(node, 'nodeHeight', node.nodeHeight + 20);
+                myDiagram.model.setDataProperty(node, "textAlign", go.Spot.Bottom);
+                myDiagram.model.setDataProperty(node, "pictrueMargin", new go.Margin(-15, 0, 0, 0));
+                myDiagram.model.setDataProperty(node, "minSize", new go.Size(280, 110));
+
+                setNodeText(nodes);
+            });
+
+            //删除操作
+            myDiagram.commandHandler.deleteSelection = function () {
+
+                var model = myDiagram.model;
+                model.startTransaction("del node");
+                go.CommandHandler.prototype.deleteSelection.call(this);
+                var nodes = myDiagram.model.hg;
+                setNodeText(nodes);
+                model.commitTransaction("del node");
+            };
+
+            //不选中所有节点
+            function unSelectAllNode() {
+
+                //不选中左侧的节点
+                paletteApple.findNodeForKey("apple").isSelected = false;
+                palettePeach.findNodeForKey("peach").isSelected = false;
+                palettePotato.findNodeForKey("potato").isSelected = false;
+                paletteMeat.findNodeForKey("meat").isSelected = false;
+            }
+
+            /**
+             * 为右侧图表绘制区中的节点设置文本
+             * @param arr 记录了右侧图表绘制区上所有的节点信息
+             */
+            function setNodeText(arr) {
+                numApple = 0;
+                numPeach = 0;
+                numPotato = 0;
+                numMeat = 0;
+
+                //获得放苹果的篮子
+                var appleBasket = myDiagram.findNodeForKey("appleBasket").data;
+
+                //获得放桃子的篮子
+                var peachBasket = myDiagram.findNodeForKey("peachBasket").data;
+
+                //遍历右侧图表绘制区
+                for (var i = 0; i < arr.length; i++) {
+                    switch (arr[i].nodeType) {
+                        case 0:
+                            numApple++;
+                            myDiagram.model.setDataProperty(arr[i], "contentText", arrayText[arr[i].nodeType] + numApple);
+                            break;
+                        case 1:
+                            numPeach++;
+                            myDiagram.model.setDataProperty(arr[i], "contentText", arrayText[arr[i].nodeType] + numPeach);
+                            break;
+                        case 2:
+                            numPotato++;
+                            myDiagram.model.setDataProperty(arr[i], "contentText", arrayText[arr[i].nodeType] + numPotato);
+                            break;
+                        case 3:
+                            numMeat++;
+                            myDiagram.model.setDataProperty(arr[i], "contentText", arrayText[arr[i].nodeType] + numMeat);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                //如果放苹果的篮子中有苹果
+                if (numApple > 0) {
+                    myDiagram.model.setDataProperty(appleBasket, "contentText", "");
+
+                //如果放苹果的篮子里没有苹果
+                } else {
+                    myDiagram.model.setDataProperty(appleBasket, "contentText", "苹果");
+                }
+
+                //如果放桃子的篮子中有桃子
+                if (numPeach > 0) {
+                    myDiagram.model.setDataProperty(peachBasket, "contentText", "");
+
+                //如果放桃子的篮子里没有桃子
+                } else {
+                    myDiagram.model.setDataProperty(peachBasket, "contentText", "桃子");
+                }
+            }
+
+            function finishDrop(e, grp) {
+
+                //如果将节点拖到了组上
+                if (grp !== null) {
+
+                    //获得组的位置
+                    var gloc = grp.location.copy();
+                    var groupType = grp.part.data.groupType;
+                    var nodeType = e.diagram.selection.Th.value.data.nodeType;
+                    var ok = false;
+
+                    if (groupType === nodeType) {
+                        //将当前选中的节点添加到组中
+                        ok = grp.addMembers(e.diagram.selection, true);
+                    } else {
+                        myDiagram.commandHandler.deleteSelection();
+                    }
+
+                    //如果将当前选中的节点添加到组中成功
+                    if (ok) {
+                        var newbnds = e.diagram.computePartsBounds(e.diagram.selection).addMargin(grp.placeholder.padding);
+                        e.diagram.moveParts(e.diagram.selection, gloc.subtract(newbnds.position), false);
+
+                        //如果将当前选中的节点添加到组中失败
+                    } else {
+                        e.diagram.currentTool.doCancel();
+                    }
+
+                //如果节点拖到了组之外的其他地方
+                } else {
+                    //将节点放入组之外的空白区域
+                    var ok = e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true);
+                    if (!ok) e.diagram.currentTool.doCancel();
+                }
+            }
+
+            function nodeStyle() {
+                return [
+                    new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+                    {
+                        mouseEnter: function (e, obj) {
+                            showPorts(obj.part, false);
+                        },
+
+                        mouseLeave: function (e, obj) {
+                            showPorts(obj.part, false);
+                        }
+                    }
+                ];
+            }
+
+            /**
+             * 显示或者隐藏节点上的端点
+             * @param node 节点
+             * @param show 一个boolean类型的数据，true表示显示端点，false表示隐藏端点
+             */
+            function showPorts(node, show) {
+                var diagram = node.diagram;
+                if (!diagram || diagram.isReadOnly || !diagram.allowLink) return;
+                node.ports.each(function (port) {
+                    port.fill = show ? "rgba(0,0,0,.3)" : null;
+                });
+            }
+
+            //创建端点
+            function makePort(name, spot, output, input) {
+
+                return $(go.Shape, "Circle",
+                    {
+                        fill: "transparent",
+                        stroke: null,
+                        desiredSize: new go.Size(8, 8),
+                        alignment: spot,
+                        alignmentFocus: spot,
+                        portId: name,
+                        fromSpot: spot,
+                        toSpot: spot,
+                        fromLinkable: output,
+                        toLinkable: input,
+                        cursor: "pointer"
+                    });
+            }
+
+            //在图表上添加一个篮子模板
+            myDiagram.groupTemplateMap.add("basket",
+                $(go.Group, "Auto",
+                    {
+                        name: "Groups",
+                        background: "transparent",
+
+                        //(必须)用于将节点可以拖出组容器之外，false为拖不出组容器之外
+                        computesBoundsAfterDrag: true,
+                        computesBoundsIncludingLocation: true,
+                        mouseDrop: function (e, obj) {
+                            finishDrop(e, obj);
+                        },
+
+                        //当在节点上点击时会触发
+                        click: function (e, obj) {
+                            unSelectAllNode();
+
+                            //获得当前选中的节点的信息
+                            var info = obj.part.data;
+                        },
+
+                        //当节点进入组时触发
+                        mouseDragEnter: function (e, grp) {
+
+
+                            //获得当前正在拖动的节点的节点类型
+                            var nodeType = dragNode.nodeType;
+
+                            //获得当前节点拖入的组的组类型
+                            var groupType = grp.part.data.groupType;
+
+                            //如果节点不属于这个组
+                            if (nodeType !== groupType) {
+                                document.querySelector("#myDiagramDiv canvas").style.cursor = "not-allowed";
+                            }
+                        },
+
+                        //当节点离开组时触发
+                        mouseDragLeave: function (e, obj) {
+                            document.querySelector("#myDiagramDiv canvas").style.cursor = "copy";
+                        },
+
+                        layout: $(go.GridLayout,
+                            {
+                                alignment: go.GridLayout.Position,
+
+                                //组需显示的默认列数
+                                wrappingColumn: 5,
+
+                                sorting: go.GridLayout.Forward,
+
+                                //单元格的大小
+                                cellSize: new go.Size(4, 4),
+
+                                //间距
+                                spacing: new go.Size(4, 4),
+                            }
+                        ),
+                    },
+                    nodeStyle(),
+                    $(go.Shape, "Rectangle",
+                        {
+                            fill: null,
+                            stroke: "#ff913a",
+                            strokeWidth: 2,
+                            margin: 0,
+                            cursor: "pointer",
+                            fromLinkable: true,
+                            toLinkable: true,
+                            fromLinkableSelfNode: true,
+                            toLinkableSelfNode: true,
+                            fromLinkableDuplicates: true,
+                            toLinkableDuplicates: true
+                        },
+                        new go.Binding("strokeWidth", "borderWidth")
+                    ),
+
+                    //内容文本
+                    $(go.TextBlock,
+                        {
+                            margin: new go.Margin(0, 0, 0, 0),
+                            alignment: go.Spot.Center,
+                            isMultiline: false,
+                            font: "24px sans-serif",
+                            stroke: "#BFC0C1"
+                        },
+                        new go.Binding("text", "contentText").makeTwoWay()
+                    ),
+
+                    $(go.Panel, "Vertical",
+                        {
+                            name: "PanelVertical",
+                            minSize: new go.Size(50, 50)
+                        },
+                        new go.Binding("minSize", "minSize").makeTwoWay(),
+
+                        $(go.Panel, "Table",
+                            {
+                                stretch: go.GraphObject.Horizontal,
+
+                                //标题的背景颜色
+                                background: "#FFAA99"
+                            },
+                            new go.Binding("visible", "showTitle"),
+
+                            //标题文本
+                            $(go.TextBlock,
+                                {
+                                    margin: 5,
+                                    //文本不允许换行
+                                    isMultiline: false,
+                                    font: "bold 18px sans-serif",
+                                    opacity: 0.75,
+
+                                    //标题的字体颜色
+                                    stroke: "#404040"
+                                },
+                                new go.Binding("text", "titleText").makeTwoWay(),
+                                new go.Binding("font", "font").makeTwoWay()
+                            )
+                        ),
+
+                        $(go.Placeholder,
+                            {
+                                padding: 5,
+
+                                //设置组容器中节点的对齐方式
+                                alignment: go.Spot.TopLeft
+                            })
+                    ),
+
+                    //设置端点
+                    makePort("T", go.Spot.Top, true, true),
+                    makePort("L", go.Spot.Left, true, true),
+                    makePort("R", go.Spot.Right, true, true),
+                    makePort("B", go.Spot.Bottom, true, true)
+                ));
+
+            //在图表上添加一个水果篮子模板
+            myDiagram.groupTemplateMap.add("fruitBasket",
+                $(go.Group, "Auto",
+                    {
+                        name: "Groups",
+                        background: "transparent",
+
+                        //(必须)用于将节点可以拖出组容器之外，false为拖不出组容器之外
+                        computesBoundsAfterDrag: true,
+
+                        mouseDrop: finishDrop,
+
+                        //当在节点上点击时会触发
+                        click: function (e, obj) {
+                            unSelectAllNode();
+
+                            //选中当前点击的节点
+                            obj.part.isSelected = true;
+                        },
+
+                        layout: $(go.GridLayout,
+                            {
+                                alignment: go.GridLayout.Position,
+
+                                //组需显示的默认列数
+                                wrappingColumn: 1,
+
+                                sorting: go.GridLayout.Forward,
+
+                                //单元格的大小
+                                cellSize: new go.Size(1, 1),
+
+                                //间距
+                                spacing: new go.Size(4, 4)
+                            }
+                        ),
+                    },
+                    nodeStyle(),
+                    $(go.Shape, "Rectangle",
+                        {
+                            //组的背景颜色
+                            fill: null,
+
+                            //Main组的边框颜色
+                            stroke: "#ff913a",
+
+                            //Main组的边框厚度
+                            strokeWidth: 2,
+                            cursor: "pointer",
+                            fromLinkable: true,
+                            toLinkable: true,
+                            fromLinkableSelfNode: true,
+                            toLinkableSelfNode: true,
+                            fromLinkableDuplicates: true,
+                            toLinkableDuplicates: true
+                        }),
+
+                    //标题
+                    $(go.Panel, "Vertical",
+                        {
+                            name: "PanelVertical",
+                            minSize: new go.Size(20, 20)
+                        },
+                        new go.Binding("minSize", "minSize").makeTwoWay(),
+
+                        $(go.Panel, "Table",
+                            {
+                                stretch: go.GraphObject.Horizontal,
+
+                                //标题的背景颜色
+                                background: "#FFAA99"
+                            },
+                            $(go.TextBlock,
+                                {
+                                    alignment: go.Spot.Center,
+                                    margin: 5,
+                                    //文本不允许换行
+                                    isMultiline: false,
+                                    font: "bold 18px sans-serif",
+                                    opacity: 0.75,
+
+                                    //标题的字体颜色
+                                    stroke: "#404040"//标题字体颜色
+                                },
+                                new go.Binding("text", "titleText").makeTwoWay(),
+                                new go.Binding("font", "font").makeTwoWay()
+                            )
+                        ),
+                        $(go.Placeholder,
+                            {
+                                padding: 5,
+
+                                //设置组容器中节点的对齐方式
+                                alignment: go.Spot.TopLeft
+                            })
+                    ),
+
+                    //设置端点
+                    makePort("T", go.Spot.Top, true, true),
+                    makePort("L", go.Spot.Left, true, true),
+                    makePort("R", go.Spot.Right, true, true),
+                    makePort("B", go.Spot.Bottom, true, true)
+                ));
+
+            //定义节点模板
+            myDiagram.nodeTemplate =
+
+                //定义模板的类型
+                $(go.Node, "Auto",
+                    {
+                        //当节点放入组中时，调用此方法
+                        mouseDrop: function (e, node) {
+                            finishDrop(e, node.containingGroup);
+                        },
+
+                        //当在节点上点击时会触发
+                        click: function (e, obj) {
+                            unSelectAllNode();
+
+                            //选中当前点击的节点
+                            obj.part.isSelected = true;
+                        },
+
+                        //当鼠标移动到左侧菜单中的节点上时会触发
+                        mouseEnter:function (e, obj) {
+                            dragNode = obj.part.data;
+                        }
+                    },
+
+                    //设置节点的形状
+                    $(go.Shape,
+                        {
+                            fill: null,
+                            stroke: null,
+                        },
+                        new go.Binding("width", "nodeWidth"),
+                        new go.Binding("height", "nodeHeight")
+                    ),
+
+                    //设置节点的图片
+                    $(go.Picture,
+                        {
+                            name: "Picture"
+                        },
+                        new go.Binding("width", "imgWidth"),
+                        new go.Binding("height", "imgHeight"),
+                        new go.Binding("source", "bgImage"),
+                        new go.Binding("alignment", "imgAlign"),
+                        new go.Binding("margin", "pictrueMargin")
+                    ),
+
+                    //节点的文本说明
+                    $(go.TextBlock,
+                        {
+                            alignment: go.Spot.BottomCenter,
+
+                            //文本不允许换行
+                            isMultiline: false,
+                            font: "12px sans-serif"
+                        },
+                        new go.Binding("text", "contentText").makeTwoWay(),
+                        new go.Binding("alignment", "textAlign")
+                    )
+                );
+
+            //连线模板
+            myDiagram.linkTemplate =
+                $(go.Link,
+                    {
+                        routing: go.Link.AvoidsNodes,
+                        curve: go.Link.JumpOver,
+                        toEndSegmentLength: 50,
+                        corner: 5,
+                        relinkableFrom: true,
+                        relinkableTo: true,
+                        reshapable: true,
+                        resegmentable: true,
+
+                        mouseEnter: function (e, link) {
+                            link.findObject("HIGHLIGHT").stroke = "rgba(30,144,255,0.2)";
+                        }
+                        ,
+                        mouseLeave: function (e, link) {
+                            link.findObject("HIGHLIGHT").stroke = "transparent";
+                        }
+                    },
+                    new go.Binding("fromSpot", "fromSpot", go.Spot.parse),
+                    new go.Binding("toSpot", "toSpot", go.Spot.parse),
+
+                    $(go.Shape,
+                        {
+                            isPanelMain: true,
+                            strokeWidth: 8,
+                            stroke: "transparent",
+                            name: "HIGHLIGHT"
+                        }),
+                    $(go.Shape,
+                        {
+                            isPanelMain: true,
+                            stroke: "gray",
+                            strokeWidth: 2
+                        }),
+
+                    //箭头
+                    $(go.Shape,
+                        {
+                            toArrow: "standard",
+                            stroke: null,
+                            fill: "gray"
+                        })
+                );
+
+            //设置线路的直角外观
+            myDiagram.toolManager.linkingTool.temporaryLink.routing = go.Link.Orthogonal;
+            myDiagram.toolManager.relinkingTool.temporaryLink.routing = go.Link.Orthogonal;
+
+            myDiagram.model =
+                $(go.GraphLinksModel,
+                    {
+                        linkFromPortIdProperty: "fromPort",  // required information:
+                        linkToPortIdProperty: "toPort",      // identifies data property names
+                        nodeDataArray: [],
+                        linkDataArray: []
+                    });
+
+            //苹果
+            paletteApple =
+                $(go.Palette, "paletteApple",
+                    {
+                        //节点模板
+                        nodeTemplate: myDiagram.nodeTemplate,
+                        contentAlignment: go.Spot.Center
+                    });
+
+            //苹果的数据
+            paletteApple.model = new go.GraphLinksModel([
+                {
+                    key: "apple",
+                    nodeType: 0,
+                    nodeWidth: 50,
+                    nodeHeight: 50,
+                    imgWidth: 50,
+                    imgHeight: 50,
+                    bgImage: "./images/apple.png",
+                    imgAlign: go.Spot.Center,
+                    text: "",
+                    textAlign: go.Spot.Center,
+                    loc: "0 100",
+                    isAdd: false
+                }
+            ]);
+
+            //桃子
+            palettePeach =
+                $(go.Palette, "palettePeach",
+                    {
+                        //节点模板
+                        nodeTemplate: myDiagram.nodeTemplate,
+                        contentAlignment: go.Spot.Center
+                    });
+
+            //桃子的数据
+            palettePeach.model = new go.GraphLinksModel([
+                {
+                    key: "peach",
+                    nodeType: 1,
+                    nodeWidth: 50,
+                    nodeHeight: 50,
+                    imgWidth: 50,
+                    imgHeight: 50,
+                    bgImage: "./images/peach.png",
+                    imgAlign: go.Spot.Center,
+                    text: "",
+                    textAlign: go.Spot.Center,
+                    isAdd: false
+                }
+            ]);
+
+            //土豆
+            palettePotato =
+                $(go.Palette, "palettePotato",
+                    {
+                        //节点模板
+                        nodeTemplate: myDiagram.nodeTemplate,
+                        contentAlignment: go.Spot.Center
+                    });
+
+            //土豆的数据
+            palettePotato.model = new go.GraphLinksModel([
+                {
+                    key: "potato",
+                    nodeType: 2,
+                    nodeWidth: 50,
+                    nodeHeight: 50,
+                    imgWidth: 50,
+                    imgHeight: 50,
+                    bgImage: "./images/potato.png",
+                    imgAlign: go.Spot.Center,
+                    text: "",
+                    textAlign: go.Spot.Center,
+                    isAdd: false
+                }
+            ]);
+
+            //肉
+            paletteMeat =
+                $(go.Palette, "paletteMeat",
+                    {
+                        //节点模板
+                        nodeTemplate: myDiagram.nodeTemplate,
+                        contentAlignment: go.Spot.Center,
+                    });
+
+            //肉的数据
+            paletteMeat.model = new go.GraphLinksModel([
+                {
+                    key: "meat",
+                    nodeType: 3,
+                    nodeWidth: 50,
+                    nodeHeight: 50,
+                    imgWidth: 50,
+                    imgHeight: 50,
+                    bgImage: "./images/meat.png",
+                    imgAlign: go.Spot.Center,
+                    text: "",
+                    textAlign: go.Spot.Center,
+                    isAdd:false
+                }
+            ]);
+
+            load();
+        }
+
+        function save() {
+            saveDiagramProperties();
+            document.getElementById("mySavedModel").value = myDiagram.model.toJson();
+            myDiagram.isModified = false;
+        }
+
+        function load() {
+            myDiagram.model = go.Model.fromJson(document.getElementById("mySavedModel").value);
+        }
+
+        //保存图表属性
+        function saveDiagramProperties() {
+            myDiagram.model.modelData.position = go.Point.stringify(myDiagram.position);
+        }
+
+        //加载图表属性
+        function loadDiagramProperties(e) {
+            var pos = myDiagram.model.modelData.position;
+            if (pos) myDiagram.initialPosition = go.Point.parse(pos);
+        }
+    </script>
+</head>
+<body onload="init()">
+<div id="sample">
+    <div class="dialog">
+        <h3 class="dialog-title">食物分类</h3>
+        <div class="content clearfix">
+            <div class="left-menu">
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <h4 class="menu-title">苹果</h4>
+                        <div class="menu-content" id="paletteApple" style="width: 112px; height: 86px;"></div>
+                    </li>
+                    <li class="menu-item">
+                        <h4 class="menu-title">桃子</h4>
+                        <div class="menu-content" id="palettePeach" style="width: 112px; height: 86px;"></div>
+                    </li>
+                    <li class="menu-item">
+                        <h4 class="menu-title">土豆</h4>
+                        <div class="menu-content" id="palettePotato" style="width: 112px; height: 86px;"></div>
+                    </li>
+                    <li class="menu-item">
+                        <h4 class="menu-title">肉</h4>
+                        <div class="menu-content" id="paletteMeat" style="width: 112px; height: 86px;"></div>
+                    </li>
+                </ul>
+            </div>
+            <div class="right-content" id="myDiagramDiv" style="width: 872px; height: 492px;float: left"></div>
+        </div>
+    </div>
+    <span style="display: inline-block; vertical-align: top;">
+      Selected Part:<br/>
+      <div id="myInspectorDiv" class="inspector"> </div>
+    </span>
+    <div id="buttons">
+        <button id="saveModel" onclick="save()">Save</button>
+        <button id="loadModel" onclick="load()">Load</button>
+        Diagram Model saved in JSON format:
+    </div>
+    <div id="levelSlider"></div>
+    <textarea id="mySavedModel" style="width:100%;height:300px">
+        { "class": "go.GraphLinksModel",
+  "linkFromPortIdProperty": "fromPort",
+  "linkToPortIdProperty": "toPort",
+  "modelData": {"position":"-334 -298.00000000000034"},
+  "nodeDataArray": [
+{"key":"fruitBasket", "groupType":4, "titleText":"水果", "isAdd":true, "category":"fruitBasket", "isGroup":"true", "font":"bold 13px sans-serif", "loc":"-18.5 -248", "nodeHeight":{"class":"NaN"}, "textAlign":{"class":"go.Spot", "x":0.5, "y":1, "offsetX":0, "offsetY":0}, "pictrueMargin":{"class":"go.Margin", "top":-15, "right":0, "bottom":0, "left":0}, "minSize":{"class":"go.Size", "width":296, "height":110}},
+{"key":"potatoBasket", "groupType":2, "titleText":"土豆", "isAdd":true, "category":"basket", "isGroup":"true", "font":"bold 13px sans-serif", "loc":"-12.5 20", "nodeHeight":{"class":"NaN"}, "textAlign":{"class":"go.Spot", "x":0.5, "y":1, "offsetX":0, "offsetY":0}, "pictrueMargin":{"class":"go.Margin", "top":-15, "right":0, "bottom":0, "left":0}, "minSize":{"class":"go.Size", "width":285, "height":107}},
+{"key":"meatBasket", "groupType":3, "titleText":"肉", "isAdd":true, "category":"basket", "isGroup":"true", "font":"bold 13px sans-serif", "loc":"-12 150", "nodeHeight":{"class":"NaN"}, "textAlign":{"class":"go.Spot", "x":0.5, "y":1, "offsetX":0, "offsetY":0}, "pictrueMargin":{"class":"go.Margin", "top":-15, "right":0, "bottom":0, "left":0}, "minSize":{"class":"go.Size", "width":284, "height":107}},
+{"key":"appleBasket", "groupType":0, "showTitle":false, "titleText":"苹果", "contentText":"苹果", "isAdd":true, "category":"basket", "isGroup":"true", "group":"fruitBasket", "font":"bold 13px sans-serif", "loc":"-12.5 -214.6", "group":"fruitBasket", "nodeHeight":{"class":"NaN"}, "textAlign":{"class":"go.Spot", "x":0.5, "y":1, "offsetX":0, "offsetY":0}, "pictrueMargin":{"class":"go.Margin", "top":-15, "right":0, "bottom":0, "left":0}, "minSize":{"class":"go.Size", "width":285, "height":80}},
+{"key":"peachBasket", "groupType":1, "showTitle":false, "titleText":"桃子", "contentText":"桃子", "isAdd":true, "category":"basket", "isGroup":"true", "group":"fruitBasket", "font":"bold 13px sans-serif", "loc":"-12.5 -94.6", "nodeHeight":{"class":"NaN"}, "textAlign":{"class":"go.Spot", "x":0.5, "y":1, "offsetX":0, "offsetY":0}, "pictrueMargin":{"class":"go.Margin", "top":-15, "right":0, "bottom":0, "left":0}, "minSize":{"class":"go.Size", "width":285, "height":80}}
+ ],
+  "linkDataArray": [
+        {"from":"fruitBasket", "to":"meatBasket", "fromPort":"L", "toPort":"L", "isAdd":true},
+        {"from":"fruitBasket", "to":"potatoBasket", "fromPort":"B", "toPort":"T", "isAdd":true}
+ ]}
+    </textarea>
+</div>
+</body>
+</html>
