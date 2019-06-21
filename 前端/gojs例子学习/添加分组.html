@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Tiger Drawing in GoJS</title>
+    <meta name="description" content="Importing some SVG as GoJS Shapes."/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./js/go.js"></script>
+    <script src="./js/PolygonDrawingTool.js"></script>
+    <script src="./js/GeometryReshapingTool.js"></script>
+    <script>
+
+        function init() {
+            if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+            var $ = go.GraphObject.make;  // for conciseness in defining templates
+
+            diagram = $(go.Diagram, "myDiagramDiv",
+                {
+                    //允许左侧调色板中的节点拖入右侧图表绘制区
+                    allowDrop: true,
+                    allowZoom: true,
+                    allowVerticalScroll: false,
+                    //禁止动画效果
+                    "animationManager.isEnabled": false,
+                    "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+                    initialContentAlignment: go.Spot.Center,
+                    "grid.visible": true,
+                    "undoManager.isEnabled": true,
+                });
+            //创建模板2
+            diagram.nodeTemplate =
+                $(go.Node, "Auto",
+                    $(go.Shape, "Ellipse", { fill: "white" }),
+                    $(go.TextBlock,
+                        new go.Binding("text", "key"))
+                );
+
+            diagram.groupTemplate =
+                $(go.Group, "Vertical",
+                    $(go.Panel, "Auto",
+                        $(go.Shape, "RoundedRectangle",  // surrounds the Placeholder
+                            { parameter1: 14,
+                                fill: "rgba(128,128,128,0.33)" }),
+                        $(go.Placeholder,    // represents the area of all member parts,
+                            { padding: 5})  // with some extra padding around them
+                    ),
+                    $(go.TextBlock,         // group title
+                        { alignment: go.Spot.Right, font: "Bold 12pt Sans-Serif" },
+                        new go.Binding("text", "key"))
+                );
+
+            var nodeDataArray = [
+                { key: "Alpha" },
+                { key: "Beta", group: "Omega" },
+                { key: "Gamma", group: "Omega" },
+                { key: "Omega", isGroup: true },
+                { key: "Delta" }
+            ];
+            var linkDataArray = [
+                { from: "Alpha", to: "Beta" },  // from outside the Group to inside it
+                { from: "Beta", to: "Gamma" },  // this link is a member of the Group
+                { from: "Omega", to: "Delta" }  // from the Group to a Node
+            ];
+            diagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+
+        }
+    </script>
+</head>
+<body onload="init()">
+<div id="sample">
+    <div id="myDiagramDiv" style="border: solid 1px black; width:99%; height:500px"></div>
+</div>
+</body>
+</html>
