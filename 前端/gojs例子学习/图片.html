@@ -29,9 +29,16 @@
                 });
             //创建模板2
             myDiagram.nodeTemplate = $(
-                go.Part,"Horizontal",
+                go.Part,
                 $(go.Picture, new go.Binding("source", "url")),
-                $(go.TextBlock, new go.Binding("text", "name"))
+                $(go.TextBlock, new go.Binding("text", "name")),
+                // $(go.Shape,
+                //     {name: "SHAPE", fill: "lightgray", strokeWidth: 1.5},
+                //     new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+                //     new go.Binding("angle").makeTwoWay(),
+                //     new go.Binding("geometryString", "geo").makeTwoWay(),
+                //     new go.Binding("stroke"),
+                //     new go.Binding("strokeWidth"))
             )
             var model = $(go.Model)
             model.nodeDataArray = [
@@ -39,14 +46,22 @@
             ]
 
             //创建图形工具
-            var tool = new PolygonDrawingTool();
-
-            //配置属性
-            tool.archetypePartData = {fill: "yellow", stroke: "blue", strokeWidth: 3, category: "Horizontal"};
-            tool.isPolygon = true;
-            //添加到图形的工具管理集合中
-            myDiagram.toolManager.mouseDownTools.insertAt(0, tool);
+            // var tool = new PolygonDrawingTool();
+            //
+            // //配置属性
+            // tool.archetypePartData = {fill: "yellow", stroke: "blue", strokeWidth: 3};
+            // tool.isPolygon = true;
+            // //添加到图形的工具管理集合中
+            // myDiagram.toolManager.mouseDownTools.insertAt(0, tool);
             myDiagram.model = model
+
+
+            myDiagram.addDiagramListener("ObjectSingleClicked", function (e) {
+
+                console.info(e)
+
+
+            })
 
         }
 

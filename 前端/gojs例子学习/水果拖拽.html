@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>拖拽效果</title>
-    <link rel="stylesheet" type="text/css" href="./index.css">
+    <link rel="stylesheet" type="text/css" href="./css/index.css">
     <script src="./js/go.js"></script>
     <script id="code">
         function init() {
@@ -62,7 +62,6 @@
 
                     //当将节点拖入右侧图表绘制区并松开鼠标时会触发mouseDrop
                     mouseDrop: function (e, obj) {
-
                         //isAdd用于标记当前选中的节点是否添加到了容器中
                         //如果isAdd为true，表示节点添加到了容器中
                         //如果isAdd为false，表示节点没有添加到容器中
@@ -70,7 +69,6 @@
 
                         //如果节点没有添加到对应的容器中
                         if (!isAdd) {
-
                             //删除当前选中的节点
                             myDiagram.commandHandler.deleteSelection();
                         }
@@ -78,7 +76,7 @@
                 });
 
             //屏蔽Ctrl+C（复制）、Ctrl+V（粘贴）、Ctrl+X（剪切）
-            myDiagram.commandHandler.doKeyDown = function() {
+            myDiagram.commandHandler.doKeyDown = function () {
                 var e = myDiagram.lastInput;
                 var control = e.control || e.meta;
                 var key = e.key;
@@ -86,7 +84,6 @@
                 if (control && (key === 'C' || key === 'V' || key === 'X')) {
                     return;
                 }
-
                 go.CommandHandler.prototype.doKeyDown.call(this);
             }
 
@@ -175,7 +172,7 @@
                 if (numApple > 0) {
                     myDiagram.model.setDataProperty(appleBasket, "contentText", "");
 
-                //如果放苹果的篮子里没有苹果
+                    //如果放苹果的篮子里没有苹果
                 } else {
                     myDiagram.model.setDataProperty(appleBasket, "contentText", "苹果");
                 }
@@ -184,7 +181,7 @@
                 if (numPeach > 0) {
                     myDiagram.model.setDataProperty(peachBasket, "contentText", "");
 
-                //如果放桃子的篮子里没有桃子
+                    //如果放桃子的篮子里没有桃子
                 } else {
                     myDiagram.model.setDataProperty(peachBasket, "contentText", "桃子");
                 }
@@ -218,7 +215,7 @@
                         e.diagram.currentTool.doCancel();
                     }
 
-                //如果节点拖到了组之外的其他地方
+                    //如果节点拖到了组之外的其他地方
                 } else {
                     //将节点放入组之外的空白区域
                     var ok = e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true);
@@ -536,7 +533,7 @@
                         },
 
                         //当鼠标移动到左侧菜单中的节点上时会触发
-                        mouseEnter:function (e, obj) {
+                        mouseEnter: function (e, obj) {
                             dragNode = obj.part.data;
                         }
                     },
@@ -738,7 +735,7 @@
                     imgAlign: go.Spot.Center,
                     text: "",
                     textAlign: go.Spot.Center,
-                    isAdd:false
+                    isAdd: false
                 }
             ]);
 
