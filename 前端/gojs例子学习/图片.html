@@ -11,76 +11,93 @@
 
         function init() {
 
-
-            if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+            //创建go工具类
             var goTool = new GoTool("myDiagramDiv", {
-                //允许左侧调色板中的节点拖入右侧图表绘制区
                 initialPosition: new go.Point(0, 0),
-                allowDrop: true,
-                allowZoom: true,
-                allowVerticalScroll: false,
-                //禁止动画效果
-                "animationManager.isEnabled": false,
-                "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
-                initialContentAlignment: go.Spot.Center,
-                "grid.visible": true,
-                "undoManager.isEnabled": true,
             });
 
-            goTool.diagram.add(
-                goTool.make(go.Part,  // this Part is not bound to any model data
-                    {
-                        layerName: "Background", position: new go.Point(0, 0),
-                        selectable: false, pickable: false
-                    },
-                    goTool.make(go.Picture, "./images/apple.png")
-                )
-            );
+            let $ = goTool.maker;
+            let myDiagram = goTool.diagram;
+
+            goTool.setBackground({
+                image: "./images/apple.png"
+            })
 
             //创建模板2
-            goTool.diagram.nodeTemplate = goTool.make(
+            myDiagram.nodeTemplate = $(
                 go.Part,
-                goTool.make(go.Shape, "TransmittalTape",
+                $(go.Shape, "TransmittalTape",
                     {strokeWidth: 0, stroke: "#C2185B", fill: "palegreen"},
                 ),
                 new go.Binding("location", "loc"),
                 new go.Binding("width"),
                 new go.Binding("height"),
-                goTool.make(go.TextBlock, new go.Binding("text", "name")),
+                $(go.TextBlock, new go.Binding("text", "name")),
             )
 
-            goTool.diagram.contextMenu = goTool.make(
+            myDiagram.contextMenu = $(
                 "ContextMenu",
-                goTool.make("ContextMenuButton",
-                    goTool.make(go.TextBlock, "标记地点"),
+                $("ContextMenuButton",
+                    $(go.TextBlock, "添加地点"),
                     {
                         click: function (e, obj) {
-                            goTool.diagram.model.startTransaction("addPoint");
-                            var name = document.getElementById("testImageName")
+                            myDiagram.model.startTransaction("addPoint");
+                            var name = new Date().getTime()
                             let nodeData = {
-                                name: name.value,
-                                width: name.value.length + 100,
+                                name: name,
+                                width: name.length + 100,
                                 height: 20,
                                 loc: new go.Point(e.dz.x, e.dz.y - 20)
                             }
-                            goTool.diagram.model.addNodeData(nodeData);
-                            goTool.diagram.model.commitTransaction("addPoint");
+
+                            myDiagram.model.addNodeData(nodeData);
+                            myDiagram.model.commitTransaction("addPoint");
+                        }
+                    }
+                ),
+                $("ContextMenuButton",
+                    $(go.TextBlock, "保存"),
+                    {
+                        click: function (e, obj) {
+                            myDiagram.model.startTransaction("addPoint");
+                            let d = myDiagram.model.toJson();
+                            let l = JSON.parse(d).nodeDataArray
+                            let f = l.map(function (v, i) {
+                                let d = {};
+                                d.name = v.name;
+                                d.height = v.height;
+                                d.x = v.loc.x;
+                                d.y = v.loc.y;
+                                return d
+                            })
+                            //todo 本地缓存存入
+                            window.localStorage.setItem("nodeData", JSON.stringify(f))
+                            myDiagram.model.commitTransaction("addPoint");
                         }
                     }
                 ),
             )
 
-            goTool.diagram.model.nodeDataArray = [
-                {name: "测试图片", width: 80, height: 20, loc: new go.Point(11, 1)}
-            ]
+            var d = window.localStorage.getItem("nodeData");
+            if (d) {
+                let f = JSON.parse(d)
+                let z = f.map(function (v) {
+                    let d = {}
+                    d.name = v.name
+                    d.width = v.width
+                    d.height = v.height
+                    d.loc = new go.Point(v.x, v.y)
+                    return d
+                })
+                //todo 本地缓存读取
+                myDiagram.model.nodeDataArray = z
+            }
         }
 
     </script>
 </head>
 <body onload="init()">
 <div id="sample">
-    <input type="text" id="testImageName">
-    <input type="button" id="save">
     <div id="myDiagramDiv" style="border: solid 1px black; width:99%; height:500px"></div>
 </div>
 </body>
