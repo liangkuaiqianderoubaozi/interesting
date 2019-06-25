@@ -13,6 +13,7 @@
 
             //创建go工具类
             var goTool = new GoTool("myDiagramDiv", {
+                "undoManager.isEnabled": true,
                 initialPosition: new go.Point(0, 0),
             });
 
@@ -23,16 +24,17 @@
                 image: "./images/apple.png"
             })
 
+            window.myDiagram = myDiagram
             //创建模板2
             myDiagram.nodeTemplate = $(
                 go.Part,
                 $(go.Shape, "TransmittalTape",
                     {strokeWidth: 0, stroke: "#C2185B", fill: "palegreen"},
                 ),
-                new go.Binding("location", "loc"),
+                new go.Binding("location", "loc").makeTwoWay(),
                 new go.Binding("width"),
                 new go.Binding("height"),
-                $(go.TextBlock, new go.Binding("text", "name")),
+                $(go.TextBlock, new go.Binding("text", "name").makeTwoWay()),
             )
 
             myDiagram.contextMenu = $(
@@ -61,6 +63,7 @@
                         click: function (e, obj) {
                             myDiagram.model.startTransaction("addPoint");
                             let d = myDiagram.model.toJson();
+
                             let l = JSON.parse(d).nodeDataArray
                             let f = l.map(function (v, i) {
                                 let d = {};
