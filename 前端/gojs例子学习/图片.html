@@ -28,9 +28,7 @@
             //创建模板2
             myDiagram.nodeTemplate = $(
                 go.Part,
-                $(go.Shape, "TransmittalTape",
-                    {strokeWidth: 0, stroke: "#C2185B", fill: "palegreen"},
-                ),
+                $(go.Shape, "BpmnEventTimer"),
                 new go.Binding("location", "loc").makeTwoWay(),
                 new go.Binding("width"),
                 new go.Binding("height"),
@@ -49,11 +47,39 @@
                                 name: name,
                                 width: name.length + 100,
                                 height: 20,
-                                loc: new go.Point(e.dz.x, e.dz.y - 20)
+                                location: new go.Point(e.dz.x, e.dz.y - 20)
                             }
 
                             myDiagram.model.addNodeData(nodeData);
                             myDiagram.model.commitTransaction("addPoint");
+                        }
+                    }
+                ),
+                $("ContextMenuButton",
+                    $(go.TextBlock, "设置基准点1"),
+                    {
+                        click: function (e, obj) {
+                            myDiagram.model.startTransaction("first");
+                            var name = new Date().getTime()
+                            let nodeData = {
+                                name: name,
+                                width: name.length + 100,
+                                height: 20,
+                                loc: new go.Point(e.dz.x, e.dz.y - 20)
+                            }
+
+                            myDiagram.model.addNodeData(nodeData);
+                            myDiagram.model.commitTransaction("first");
+                        }
+                    }
+                ),
+                $("ContextMenuButton",
+                    $(go.TextBlock, "设置基准点2"),
+                    {
+                        click: function (e, obj) {
+                            myDiagram.model.startTransaction("theSecond");
+
+                            myDiagram.model.commitTransaction("theSecond");
                         }
                     }
                 ),
@@ -88,7 +114,7 @@
                     let d = {}
                     d.name = v.name
                     d.width = v.width
-                    d.height = v.height
+                    d.height = 200
                     d.loc = new go.Point(v.x, v.y)
                     return d
                 })
@@ -100,6 +126,7 @@
     </script>
 </head>
 <body onload="init()">
+
 <div id="sample">
     <div id="myDiagramDiv" style="border: solid 1px black; width:99%; height:500px"></div>
 </div>
