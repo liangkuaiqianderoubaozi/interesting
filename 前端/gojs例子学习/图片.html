@@ -17,6 +17,7 @@
                 initialPosition: new go.Point(0, 0),
             });
 
+
             let $ = goTool.maker;
             let myDiagram = goTool.diagram;
 
@@ -78,7 +79,6 @@
                     {
                         click: function (e, obj) {
                             myDiagram.model.startTransaction("theSecond");
-
                             myDiagram.model.commitTransaction("theSecond");
                         }
                     }
