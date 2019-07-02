@@ -6,6 +6,7 @@
     <meta name="description" content="Importing some SVG as GoJS Shapes."/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="./js/go.js"></script>
+    <script src="./js/RotateMultipleTool.js"></script>
     <script src="./js/goTool.js"></script>
     <script>
 
@@ -29,15 +30,24 @@
             //创建模板2
             myDiagram.nodeTemplate = $(
                 go.Part,
-                $(go.Shape, "BpmnEventTimer"),
+                $(go.Shape, "BpmnEventTimer", {
+                    geometryString: "F M120 0 L80 80 0 50z",
+                    fill: "lightgreen",
+                    width: 20, height: 20, strokeWidth: 3
+                }),
                 new go.Binding("location", "loc").makeTwoWay(),
-                new go.Binding("width"),
-                new go.Binding("height"),
-                $(go.TextBlock, new go.Binding("text", "name").makeTwoWay()),
+                $(go.TextBlock, {editable: true}, new go.Binding("text", "name").makeTwoWay()),
             )
 
             myDiagram.contextMenu = $(
                 "ContextMenu",
+                $("ContextMenuButton",
+                    $(go.TextBlock, "旋转"),
+                    {
+                        click: function (e, obj) {
+                        }
+                    }
+                ),
                 $("ContextMenuButton",
                     $(go.TextBlock, "添加地点"),
                     {
@@ -46,40 +56,11 @@
                             var name = new Date().getTime()
                             let nodeData = {
                                 name: name,
-                                width: name.length + 100,
-                                height: 20,
-                                location: new go.Point(e.dz.x, e.dz.y - 20)
-                            }
-
-                            myDiagram.model.addNodeData(nodeData);
-                            myDiagram.model.commitTransaction("addPoint");
-                        }
-                    }
-                ),
-                $("ContextMenuButton",
-                    $(go.TextBlock, "设置基准点1"),
-                    {
-                        click: function (e, obj) {
-                            myDiagram.model.startTransaction("first");
-                            var name = new Date().getTime()
-                            let nodeData = {
-                                name: name,
-                                width: name.length + 100,
-                                height: 20,
                                 loc: new go.Point(e.dz.x, e.dz.y - 20)
                             }
 
                             myDiagram.model.addNodeData(nodeData);
-                            myDiagram.model.commitTransaction("first");
-                        }
-                    }
-                ),
-                $("ContextMenuButton",
-                    $(go.TextBlock, "设置基准点2"),
-                    {
-                        click: function (e, obj) {
-                            myDiagram.model.startTransaction("theSecond");
-                            myDiagram.model.commitTransaction("theSecond");
+                            myDiagram.model.commitTransaction("addPoint");
                         }
                     }
                 ),
@@ -114,7 +95,7 @@
                     let d = {}
                     d.name = v.name
                     d.width = v.width
-                    d.height = 200
+                    d.height = 100
                     d.loc = new go.Point(v.x, v.y)
                     return d
                 })
@@ -123,10 +104,19 @@
             }
         }
 
+        function rotate() {
+            var canvas = document.getElementsByTagName("canvas");
+            var context = canvas[0].getContext("2d");
+            console.info(context)//旋转角度
+            context.rotate(910);//旋转角度
+            context.translate(100, 100)
+        }
+
     </script>
 </head>
 <body onload="init()">
-
+<input type="text" id="angle" value="90">
+<input type="button" onclick="rotate()" value="旋转">
 <div id="sample">
     <div id="myDiagramDiv" style="border: solid 1px black; width:99%; height:500px"></div>
 </div>

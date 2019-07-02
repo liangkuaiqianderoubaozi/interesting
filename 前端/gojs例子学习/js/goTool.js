@@ -4,9 +4,6 @@
 (function (go, _global) {
 
     var defaultOption = {
-        allowDrop: true,
-        allowZoom: true,
-        allowVerticalScroll: false,
         //禁止动画效果
         "animationManager.isEnabled": false,
         "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
@@ -40,13 +37,15 @@
             let d = _.diagram
             let opt = Object.assign(options, {
                 layerName: "Background", position: new go.Point(0, 0),
-                selectable: false, pickable: false
+                selectable: false, pickable: false,
             })
 
             let p = opt.image ? opt.image : ""
             if (p) delete opt.image
 
-            d.add($(go.Part, opt, $(go.Picture, p)));
+            d.add($(go.Part, opt, $(go.Picture, p, {
+                flip: go.GraphObject.FlipBoth
+            })));
         }
     }
 

@@ -42,7 +42,6 @@
             // the template for each kitten, for now just a colored circle
             myDiagram.nodeTemplate =
                 $(go.Node,
-                    new go.Binding("location", "loc"),  // specified by data
                     {locationSpot: go.Spot.Center},   // at center of node
                     $(go.Shape, "Circle",
                         {width: 15, height: 15, strokeWidth: 3},
