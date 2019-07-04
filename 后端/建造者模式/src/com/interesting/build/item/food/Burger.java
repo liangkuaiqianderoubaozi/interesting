@@ -1,8 +1,8 @@
 package com.interesting.build.item.food;
 
-import com.interesting.build.Item;
+import com.interesting.test.Item;
 import com.interesting.build.packing.Packing;
-import com.interesting.build.packing.impl.Wrapper;
+import com.interesting.test.Wrapper;
 
 public abstract class Burger implements Item {
     @Override

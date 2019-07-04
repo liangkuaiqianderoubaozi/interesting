@@ -1,6 +1,6 @@
 package com.interesting.build.item.drink;
 
-import com.interesting.build.Item;
+import com.interesting.test.Item;
 import com.interesting.build.packing.Packing;
 import com.interesting.build.packing.impl.Bottle;
 
