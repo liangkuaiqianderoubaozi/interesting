@@ -8,6 +8,7 @@
     <script src="./js/go.js"></script>
     <script src="./js/RotateMultipleTool.js"></script>
     <script src="./js/goTool.js"></script>
+    <script src="./js/MathTool.js"></script>
     <script>
 
         function init() {
@@ -41,13 +42,6 @@
 
             myDiagram.contextMenu = $(
                 "ContextMenu",
-                $("ContextMenuButton",
-                    $(go.TextBlock, "旋转"),
-                    {
-                        click: function (e, obj) {
-                        }
-                    }
-                ),
                 $("ContextMenuButton",
                     $(go.TextBlock, "添加地点"),
                     {
@@ -104,19 +98,48 @@
             }
         }
 
-        function rotate() {
-            var canvas = document.getElementsByTagName("canvas");
-            var context = canvas[0].getContext("2d");
-            console.info(context)//旋转角度
-            context.rotate(910);//旋转角度
-            context.translate(100, 100)
+        window.addEventListener("xxxx", function (e) {
+            let myDiagram = window.myDiagram
+            myDiagram.model.startTransaction("rotate");
+            var nodeDtaArray = myDiagram.model.nodeDataArray
+            let newNodeData = []
+            nodeDtaArray.forEach(function (v) {
+                let d = myDiagram.model.copyNodeData(v);
+                let _ = MathTool.rotate({x: 0, y: 0}, {x: d.loc.x, y: d.loc.y}, e.param.angle)
+                d.loc = new go.Point(_.x, _.y)
+                newNodeData.push(d)
+            })
+
+            myDiagram.model.nodeDataArray = newNodeData;
+            myDiagram.model.commitTransaction("rotate");
+
+        })
+        let totalRotate = 0
+
+        function rotate(number) {
+            number = Number.parseInt(number)
+            let event = new Event("xxxx")
+            event.param = {angle: number}
+            window.dispatchEvent(event)
+
+            totalRotate += number
+            document.getElementById("current_").value = totalRotate
         }
 
+        function commit() {
+            let angle = document.getElementById("angle").value
+            rotate(angle)
+        }
     </script>
 </head>
 <body onload="init()">
-<input type="text" id="angle" value="90">
-<input type="button" onclick="rotate()" value="旋转">
+自定义旋转度数：<input type="text" id="angle" value="0">
+<input type="button" onclick="rotate(1)" value="+1">
+<input type="button" onclick="rotate(-1)" value="-1">
+<input type="button" onclick="rotate(10)" value="+10">
+<input type="button" onclick="rotate(-10)" value="-10">
+<input type="button" onclick="commit()" value="确定">
+当前旋转度数：<input type="text" id="current_" disabled="disabled" value="">
 <div id="sample">
     <div id="myDiagramDiv" style="border: solid 1px black; width:99%; height:500px"></div>
 </div>
