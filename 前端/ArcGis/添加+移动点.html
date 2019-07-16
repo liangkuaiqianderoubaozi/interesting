@@ -13,10 +13,27 @@
             height: 100%;
             width: 100%;
         }
+
         html, body {
             margin: 0;
             padding: 0;
         }
+
+        #feedback {
+            background: #fff;
+            color: #444;
+            position: absolute;
+            font-family: arial;
+            height: 300px;
+            left: 30px;
+            margin: 5px;
+            padding: 10px;
+            top: 30px;
+            width: 300px;
+            z-index: 40;
+        }
+
+
         #mainWindow {
             visibility: hidden;
         }
@@ -24,7 +41,7 @@
 
     <script src="https://js.arcgis.com/3.29/"></script>
     <script>
-        var map, editToolbar;
+        var map, editToolbar, dynamicMapServiceLayer, infos = {};
 
         require([
             "esri/map",
@@ -48,6 +65,11 @@
             "dojo/parser",
             "dojo/dom",
             "dojo/dom-style",
+            "dojo/_base/array",
+            "dojo/query",
+            "dojo/on",
+            "dojo/dnd/Source",
+            "dojo/dom-construct",
             "dijit/registry",
             "dijit/Menu",
 
@@ -57,12 +79,14 @@
             "dijit/layout/BorderContainer",
             "dijit/layout/ContentPane",
             "dojo/domReady!"
-        ], function(
+        ], function (
             Map, Edit, Graphic,
-            Point, Polyline, Polygon,Draw,
-            SimpleLineSymbol, SimpleFillSymbol, TextSymbol,ArcGISDynamicMapServiceLayer,ImageParameters,
-            event, parser, dom, domStyle, registry, Menu
+            Point, Polyline, Polygon, Draw,
+            SimpleLineSymbol, SimpleFillSymbol, TextSymbol, ArcGISDynamicMapServiceLayer, ImageParameters,
+            event, parser, dom, domStyle, arrayUtils, query,on, Source, domConstruct, registry, Menu
         ) {
+
+            var dynamicLayerInfos;
             parser.parse();
 
             domStyle.set(registry.byId("mainWindow").domNode, "visibility", "visible");
@@ -72,27 +96,46 @@
                 zoom: 3
             });
 
-            var imageParameters = new ImageParameters();
-            imageParameters.format = "jpeg";
-
-            var dynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer("http://localhost:6080/arcgis/rest/services/MyMapService/MapServer", {
+            dynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer("http://localhost:6080/arcgis/rest/services/MyMapService/MapServer", {
                 "opacity": 0.5,
-                "imageParameters": imageParameters
             });
+
+            dynamicMapServiceLayer.on("load", function (e) {
+                dynamicLayerInfos = e.target.createDynamicLayerInfosFromLayerInfos();
+                arrayUtils.forEach(dynamicLayerInfos, function (info) {
+                    var i = {
+                        id: info.id,
+                        name: info.name,
+                        position: info.id
+                    };
+                    if (arrayUtils.indexOf(dynamicMapServiceLayer.visibleLayers, info.id) > -1) {
+                        i.visible = true;
+                    } else {
+                        i.visible = false;
+                    }
+                    infos[info.id] = i;
+                });
+                infos.total = dynamicLayerInfos.length;
+                e.target.setDynamicLayerInfos(dynamicLayerInfos, true);
+            });
+
+            //只在第一次更新结束时才创建图层列表
+            on.once(dynamicMapServiceLayer, "update-end", buildLayerList);
 
             map.addLayer(dynamicMapServiceLayer);
 
-            map.on("load", function(){
+
+            map.on("load", function () {
                 toolbar = new Draw(map);
                 toolbar.on("draw-end", addToMap);
 
                 editToolbar = new Edit(map);
-                map.graphics.on("click", function(evt) {
+                map.graphics.on("click", function (evt) {
                     event.stop(evt);
                     activateToolbar(evt.graphic);
                 });
 
-                map.on("click", function(evt){
+                map.on("click", function (evt) {
                     editToolbar.deactivate();
                 });
             });
@@ -131,26 +174,119 @@
                 };
                 editToolbar.activate(tool, graphic, options);
             }
+
+
+            var dndSource = new Source("layerList");
+
+            function buildLayerList() {
+                dndSource.clearItems();
+                domConstruct.empty(dom.byId("layerList"));
+
+                var layerNames = [];
+                for (var info in infos) {
+                    if (!infos[info].hasOwnProperty("id")) {
+                        continue;
+                    }
+                    // only want the layer's name, don't need the db name and owner name
+                    var nameParts = infos[info].name.split(".");
+                    var layerName = nameParts[nameParts.length - 1];
+                    var layerDiv = createToggle(layerName, infos[info].visible);
+                    layerNames[infos[info].position] = layerDiv;
+                }
+
+                dndSource.insertNodes(false, layerNames);
+            }
+
+            function createToggle(name, visible) {
+                var div = domConstruct.create("div");
+                var layerVis = domConstruct.create("input", {
+                    checked: visible,
+                    id: name,
+                    name: name,
+                    type: "checkbox"
+                }, div);
+                on(layerVis, "click", toggleLayer);
+                var layerSpan = domConstruct.create("label", {
+                    for: name,
+                    innerHTML: name
+                }, div);
+                return div;
+            }
+
+            function toggleLayer(e) {
+                for (var info in infos) {
+                    var i = infos[info];
+                    if (i.name === e.target.name) {
+                        i.visible = !i.visible;
+                    }
+                }
+                var visible = getVisibleLayers();
+                if (visible.length === 0) {
+                    dynamicMapServiceLayer.setVisibleLayers([-1]);
+                } else {
+                    dynamicMapServiceLayer.setDynamicLayerInfos(visible);
+                }
+            }
+
+            function getVisibleLayers() {
+                var layerOrder = [];
+                query("#layerList .dojoDndItem label").forEach(function (n, idx) {
+                    for (var info in infos) {
+                        var i = infos[info];
+                        if (i.name === n.innerHTML) {
+                            layerOrder[idx] = i.id;
+                            i.position = idx;
+                            break;
+                        }
+                    }
+                });
+                var ids = arrayUtils.filter(layerOrder, function (l) {
+                    return infos[l].visible;
+                });
+                var visible = arrayUtils.map(ids, function (id) {
+                    return dynamicLayerInfos[id];
+                });
+                return visible;
+            }
+
         });
     </script>
 </head>
 
 <body class="nihilo">
 <div id="mainWindow" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design:'headline', gutters:'false'">
-    <div id="header" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'top'" style="height:58px;text-align:left;font-weight:bold;font-size:14px;color:#400D12;">
-        <span>Specify options then click a graphic to edit the shape. Click outside the graphic to deactivate the toolbar.</span><br />
+    <div id="header" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'top'"
+         style="height:58px;text-align:left;font-weight:bold;font-size:14px;color:#400D12;">
+        <span>选择选项编辑图形</span><br/>
         <button data-dojo-type="dijit/form/Button">Circle</button>
-        <div id="tool_move" data-dojo-type="dijit/form/ToggleButton" data-dojo-props="checked:'true', iconClass:'dijitCheckBoxIcon'">Move</div>
-        <button data-dojo-type="dijit/form/DropDownButton" id="options"  data-dojo-props="value:'options'">
-            <span>Options</span>
+        <div id="tool_move" data-dojo-type="dijit/form/ToggleButton"
+             data-dojo-props="checked:'true', iconClass:'dijitCheckBoxIcon'">移动
+        </div>
+        <button data-dojo-type="dijit/form/DropDownButton" id="options" data-dojo-props="value:'options'">
+            <span>内容</span>
             <div data-dojo-type="dijit/Menu" id="optionsMenu">
-                <div id="vtx_ca" data-dojo-type="dijit/CheckedMenuItem" data-dojo-props="checked:'true'">Allow Add Vertices</div>
-                <div id="vtx_cd" data-dojo-type="dijit/CheckedMenuItem" data-dojo-props="checked:'true'">Allow Delete Vertices</div>
-                <div id="uniform_scaling" data-dojo-type="dijit/CheckedMenuItem" data-dojo-props="checked:'true'">Uniform Scaling when Resizing</div>
+                <div id="vtx_ca" data-dojo-type="dijit/CheckedMenuItem" data-dojo-props="checked:'true'">Allow Add
+                    Vertices
+                </div>
+                <div id="vtx_cd" data-dojo-type="dijit/CheckedMenuItem" data-dojo-props="checked:'true'">Allow Delete
+                    Vertices
+                </div>
+                <div id="uniform_scaling" data-dojo-type="dijit/CheckedMenuItem" data-dojo-props="checked:'true'">
+                    Uniform Scaling when Resizing
+                </div>
             </div>
         </button>
     </div>
     <div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
+        <div id="feedback" class="shadow">
+            <div id="info">
+                <div id="layerList"></div>
+
+                <button id="lakes" data-dojo-type="dijit/form/Button">
+                    添加
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 </body>
