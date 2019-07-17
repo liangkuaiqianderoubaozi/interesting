@@ -24,15 +24,11 @@
             color: #444;
             position: absolute;
             font-family: arial;
-            height: 300px;
-            left: 30px;
             margin: 5px;
             padding: 10px;
-            top: 30px;
             width: 300px;
             z-index: 40;
         }
-
 
         #mainWindow {
             visibility: hidden;
@@ -83,7 +79,7 @@
             Map, Edit, Graphic,
             Point, Polyline, Polygon, Draw,
             SimpleLineSymbol, SimpleFillSymbol, TextSymbol, ArcGISDynamicMapServiceLayer, ImageParameters,
-            event, parser, dom, domStyle, arrayUtils, query,on, Source, domConstruct, registry, Menu
+            event, parser, dom, domStyle, arrayUtils, query, on, Source, domConstruct, registry, Menu
         ) {
 
             var dynamicLayerInfos;
@@ -96,92 +92,71 @@
                 zoom: 3
             });
 
-            dynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer("http://localhost:6080/arcgis/rest/services/MyMapService/MapServer", {
-                "opacity": 0.5,
-            });
+            var mapList = new Source("mapList");
+            createMapList()
 
-            dynamicMapServiceLayer.on("load", function (e) {
-                dynamicLayerInfos = e.target.createDynamicLayerInfosFromLayerInfos();
-                arrayUtils.forEach(dynamicLayerInfos, function (info) {
-                    var i = {
-                        id: info.id,
-                        name: info.name,
-                        position: info.id
-                    };
-                    if (arrayUtils.indexOf(dynamicMapServiceLayer.visibleLayers, info.id) > -1) {
-                        i.visible = true;
-                    } else {
-                        i.visible = false;
-                    }
-                    infos[info.id] = i;
-                });
-                infos.total = dynamicLayerInfos.length;
-                e.target.setDynamicLayerInfos(dynamicLayerInfos, true);
-            });
+            function createMapList() {
+                mapList.clearItems();
+                domConstruct.empty(dom.byId("mapList"));
 
-            //只在第一次更新结束时才创建图层列表
-            on.once(dynamicMapServiceLayer, "update-end", buildLayerList);
+                var layerNames = [
+                    {id: 1, name: "地图", url: "http://localhost:6080/arcgis/rest/services/SampleWorldCities/MapServer"},
+                    {id: 2, name: "矿图", url: "http://localhost:6080/arcgis/rest/services/MyMapService/MapServer"}
+                ];
+                var itemList = layerNames.map(function (v) {
+                    return createMapItem(v, false)
+                })
 
-            map.addLayer(dynamicMapServiceLayer);
-
-
-            map.on("load", function () {
-                toolbar = new Draw(map);
-                toolbar.on("draw-end", addToMap);
-
-                editToolbar = new Edit(map);
-                map.graphics.on("click", function (evt) {
-                    event.stop(evt);
-                    activateToolbar(evt.graphic);
-                });
-
-                map.on("click", function (evt) {
-                    editToolbar.deactivate();
-                });
-            });
-
-            registry.forEach(function (d) {
-                if (d.declaredClass === "dijit.form.Button") {
-                    d.on("click", activateTool);
-                }
-            });
-
-            function activateTool() {
-                var tool = this.label.toUpperCase().replace(/ /g, "_");
-                toolbar.activate(Draw[tool]);
-                map.hideZoomSlider();
+                mapList.insertNodes(false, itemList);
             }
 
-            function addToMap(evt) {
-                toolbar.deactivate();
-                map.showZoomSlider();
+            function createMapItem(item, visible) {
+                var div = domConstruct.create("div");
+                var layerVis = domConstruct.create("input", {
+                    checked: visible,
+                    id: item.id,
+                    value: item.url,
+                    name: "radio",
+                    type: "radio"
+                }, div);
+                on(layerVis, "click", function (e) {
+                    map.removeAllLayers();
 
-                var graphic = new Graphic(evt.geometry, new SimpleFillSymbol());
-                map.graphics.add(graphic);
-                console.info(map.graphics.toJson)
+                    dynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer(e.target.value);
+
+                    dynamicMapServiceLayer.on("load", function (result) {
+                        dynamicLayerInfos = result.target.createDynamicLayerInfosFromLayerInfos();
+                        arrayUtils.forEach(dynamicLayerInfos, function (info) {
+                            var i = {
+                                id: info.id,
+                                name: info.name,
+                                position: info.id
+                            };
+                            if (arrayUtils.indexOf(dynamicMapServiceLayer.visibleLayers, info.id) > -1) {
+                                i.visible = true;
+                            } else {
+                                i.visible = false;
+                            }
+                            infos[info.id] = i;
+                        });
+                        infos.total = dynamicLayerInfos.length;
+                        result.target.setDynamicLayerInfos(dynamicLayerInfos, true);
+                    });
+
+                    //只在第一次更新结束时才创建图层列表
+                    on.once(dynamicMapServiceLayer, "update-end", buildLayerList);
+
+                    map.addLayer(dynamicMapServiceLayer);
+                });
+                domConstruct.create("label", {for: item.name, innerHTML: item.name}, div);
+                return div;
             }
-
-            function activateToolbar(graphic) {
-                var tool = 0;
-
-                if (registry.byId("tool_move").checked) {
-                    tool = tool | Edit.MOVE;
-                }
-                var options = {
-                    allowAddVertices: registry.byId("vtx_ca").checked,
-                    allowDeleteVertices: registry.byId("vtx_cd").checked,
-                    uniformScaling: registry.byId("uniform_scaling").checked
-                };
-                editToolbar.activate(tool, graphic, options);
-            }
-
 
             var dndSource = new Source("layerList");
 
             function buildLayerList() {
                 dndSource.clearItems();
                 domConstruct.empty(dom.byId("layerList"));
-
                 var layerNames = [];
                 for (var info in infos) {
                     if (!infos[info].hasOwnProperty("id")) {
@@ -206,7 +181,7 @@
                     type: "checkbox"
                 }, div);
                 on(layerVis, "click", toggleLayer);
-                var layerSpan = domConstruct.create("label", {
+                domConstruct.create("label", {
                     for: name,
                     innerHTML: name
                 }, div);
@@ -255,36 +230,20 @@
 
 <body class="nihilo">
 <div id="mainWindow" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design:'headline', gutters:'false'">
-    <div id="header" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'top'"
-         style="height:58px;text-align:left;font-weight:bold;font-size:14px;color:#400D12;">
-        <span>选择选项编辑图形</span><br/>
-        <button data-dojo-type="dijit/form/Button">Circle</button>
-        <div id="tool_move" data-dojo-type="dijit/form/ToggleButton"
-             data-dojo-props="checked:'true', iconClass:'dijitCheckBoxIcon'">移动
-        </div>
-        <button data-dojo-type="dijit/form/DropDownButton" id="options" data-dojo-props="value:'options'">
-            <span>内容</span>
-            <div data-dojo-type="dijit/Menu" id="optionsMenu">
-                <div id="vtx_ca" data-dojo-type="dijit/CheckedMenuItem" data-dojo-props="checked:'true'">Allow Add
-                    Vertices
-                </div>
-                <div id="vtx_cd" data-dojo-type="dijit/CheckedMenuItem" data-dojo-props="checked:'true'">Allow Delete
-                    Vertices
-                </div>
-                <div id="uniform_scaling" data-dojo-type="dijit/CheckedMenuItem" data-dojo-props="checked:'true'">
-                    Uniform Scaling when Resizing
+    <div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
+
+        <div id="feedback" class="shadow">
+            <div id="maps">
+                底图：
+                <div id="mapList">
+
                 </div>
             </div>
-        </button>
-    </div>
-    <div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
-        <div id="feedback" class="shadow">
-            <div id="info">
-                <div id="layerList"></div>
 
-                <button id="lakes" data-dojo-type="dijit/form/Button">
-                    添加
-                </button>
+
+            <div id="info">
+                层级：
+                <div id="layerList"></div>
             </div>
         </div>
     </div>

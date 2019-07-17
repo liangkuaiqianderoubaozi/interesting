@@ -28,6 +28,4 @@ public class main {
         System.out.println(map.get(list.get(0)));
 
     }
-
-
 }

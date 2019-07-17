@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Edit rivers and waterbodies</title>
+
+    <link rel="stylesheet" href="../arcgis/claro.css">
+    <link rel="stylesheet" href="../arcgis/esri.css">
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            padding: 0;
+        }
+
+        #header {
+            font-size: 1.1em;
+            font-family: sans-serif;
+            padding-left: 1em;
+            padding-top: 4px;
+            color: #660000;
+        }
+
+        .templatePicker {
+            border: none;
+        }
+
+        .dj_ie .infowindow .window .top .right .user .content {
+            position: relative;
+        }
+
+        .dj_ie .simpleInfoWindow .content {
+            position: relative;
+        }
+    </style>
+
+    <script src="../arcgis/init.js"></script>
+    <script>
+        require(["dojo/parser", "dijit/registry", "dojo/dom", "dojo/domReady!"], function(parser, registry, dom){
+            parser.parse();
+            // dom.byId("foobar") would only be a normal domNode.
+            var myDialog = registry.byId("foobar");
+            myDialog.set("content", "<p>I've been replaced!</p>");
+            myDialog.show();
+        });
+    </script>
+</head>
+<body>
+<div data-dojo-type="dijit/Dialog" id="foobar" title="Foo!">
+    <p>I am some content</p>
+</div>
+</body>
+</html>
