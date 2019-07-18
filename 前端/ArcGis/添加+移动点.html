@@ -121,7 +121,7 @@
                 }, div);
                 on(layerVis, "click", function (e) {
                     map.removeAllLayers();
-
+                    infos = {}
                     dynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer(e.target.value);
 
                     dynamicMapServiceLayer.on("load", function (result) {
@@ -220,6 +220,7 @@
                 });
                 var visible = arrayUtils.map(ids, function (id) {
                     return dynamicLayerInfos[id];
+                    //红尘三千丈，浮萍随风荡。
                 });
                 return visible;
             }
