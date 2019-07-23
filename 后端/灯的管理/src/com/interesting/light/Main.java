@@ -46,7 +46,5 @@ public class Main {
 
         playground.startGame(1);
 
-        String s = "AMERICAN EXPRESS,DISCOVER,JCB,MAESTRO,MASTERCARD,VISA";
-
     }
 }

@@ -37,7 +37,7 @@
 
     <script src="https://js.arcgis.com/3.29/"></script>
     <script>
-        var map, editToolbar, dynamicMapServiceLayer, infos = {}, search;
+        var map, editToolbar, dynamicMapServiceLayer, infos = {};
 
         require([
             "esri/map",
@@ -54,7 +54,6 @@
             "esri/symbols/SimpleFillSymbol",
             "esri/symbols/TextSymbol",
 
-            "esri/dijit/Search",
             "esri/layers/ArcGISDynamicMapServiceLayer",
             "esri/layers/ImageParameters",
 
@@ -79,7 +78,7 @@
         ], function (
             Map, Edit, Graphic,
             Point, Polyline, Polygon, Draw,
-            SimpleLineSymbol, SimpleFillSymbol, TextSymbol, Search, ArcGISDynamicMapServiceLayer, ImageParameters,
+            SimpleLineSymbol, SimpleFillSymbol, TextSymbol, ArcGISDynamicMapServiceLayer, ImageParameters,
             event, parser, dom, domStyle, arrayUtils, query, on, Source, domConstruct, registry, Menu
         ) {
 
@@ -101,8 +100,9 @@
                 domConstruct.empty(dom.byId("mapList"));
 
                 var layerNames = [
-                    {id: 1, name: "地图", url: "http://localhost:6080/arcgis/rest/services/SampleWorldCities/MapServer"},
-                    {id: 2, name: "矿图", url: "http://localhost:6080/arcgis/rest/services/MyMapService/MapServer"}
+                    {id: 1, name: "地图服务测试", url: "http://localhost:6080/arcgis/rest/services/SampleWorldCities/MapServer"},
+                    {id: 2, name: "矿图图层测试", url: "http://localhost:6080/arcgis/rest/services/MyMapService/MapServer"},
+                    {id: 2, name: "新地图搜索测试", url: "http://localhost:6080/arcgis/rest/services/newMapService/MapServer"}
                 ];
                 var itemList = layerNames.map(function (v) {
                     return createMapItem(v, false)
@@ -121,34 +121,6 @@
                     type: "radio"
                 }, div);
                 on(layerVis, "click", function (e) {
-
-                    search = new Search({
-                        enableButtonMode: true, //this enables the search widget to display as a single button
-                        enableLabel: false,
-                        enableInfoWindow: true,
-                        showInfoWindowOnSelect: false,
-                        map: map
-                    }, "search");
-                    var sources = search.get("sources");
-                    sources.push({
-                        featureLayer: new FeatureLayer("https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/CongressionalDistricts/FeatureServer/0"),
-                        searchFields: ["DISTRICTID"],
-                        displayField: "DISTRICTID",
-                        exactMatch: false,
-                        outFields: ["DISTRICTID", "NAME", "PARTY"],
-                        name: "Congressional Districts",
-                        placeholder: "3708",
-                        maxResults: 6,
-                        maxSuggestions: 6,
-
-                        //Create an InfoTemplate and include three fields
-                        infoTemplate: new InfoTemplate("Congressional District",
-                            "District ID: ${DISTRICTID}</br>Name: ${NAME}</br>Party Affiliation: ${PARTY}"
-                        ),
-                        enableSuggestions: true,
-                        minCharacters: 0
-                    });
-
                     map.removeAllLayers();
                     infos = {}
                     dynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer(e.target.value);
@@ -249,6 +221,7 @@
                 });
                 var visible = arrayUtils.map(ids, function (id) {
                     return dynamicLayerInfos[id];
+                    //红尘三千丈，浮萍随风荡。
                 });
                 return visible;
             }
@@ -259,7 +232,6 @@
 
 <body class="nihilo">
 <div id="mainWindow" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design:'headline', gutters:'false'">
-    <div id="search"></div>
     <div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
 
         <div id="feedback" class="shadow">
