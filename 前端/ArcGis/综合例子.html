@@ -19,6 +19,10 @@
             padding: 0;
         }
 
+        #search {
+            float: right !important;
+        }
+
         #feedback {
             background: #fff;
             color: #444;
@@ -43,6 +47,7 @@
             "esri/map",
             "esri/toolbars/edit",
             "esri/graphic",
+            "esri/dijit/Search",
 
             "esri/geometry/Point",
             "esri/geometry/Polyline",
@@ -76,7 +81,7 @@
             "dijit/layout/ContentPane",
             "dojo/domReady!"
         ], function (
-            Map, Edit, Graphic,
+            Map, Edit, Graphic, Search,
             Point, Polyline, Polygon, Draw,
             SimpleLineSymbol, SimpleFillSymbol, TextSymbol, ArcGISDynamicMapServiceLayer, ImageParameters,
             event, parser, dom, domStyle, arrayUtils, query, on, Source, domConstruct, registry, Menu
@@ -92,6 +97,12 @@
                 zoom: 3
             });
 
+            var search = new Search({
+                map: map
+            }, "search");
+            search.startup();
+
+
             var mapList = new Source("mapList");
             createMapList()
 
@@ -100,9 +111,14 @@
                 domConstruct.empty(dom.byId("mapList"));
 
                 var layerNames = [
-                    {id: 1, name: "地图服务测试", url: "http://localhost:6080/arcgis/rest/services/SampleWorldCities/MapServer"},
+                    {
+                        id: 1,
+                        name: "地图服务测试",
+                        url: "http://localhost:6080/arcgis/rest/services/SampleWorldCities/MapServer"
+                    },
                     {id: 2, name: "矿图图层测试", url: "http://localhost:6080/arcgis/rest/services/MyMapService/MapServer"},
-                    {id: 2, name: "新地图搜索测试", url: "http://localhost:6080/arcgis/rest/services/newMapService/MapServer"}
+                    {id: 2, name: "新地图搜索测试", url: "http://localhost:6080/arcgis/rest/services/newMapService/MapServer"},
+                    {id: 2, name: "新图2", url: "http://localhost:6080/arcgis/rest/services/dddd/MapServer"}
                 ];
                 var itemList = layerNames.map(function (v) {
                     return createMapItem(v, false)
@@ -233,6 +249,7 @@
 <body class="nihilo">
 <div id="mainWindow" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design:'headline', gutters:'false'">
     <div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
+        <div id="search"></div>
 
         <div id="feedback" class="shadow">
             <div id="maps">
