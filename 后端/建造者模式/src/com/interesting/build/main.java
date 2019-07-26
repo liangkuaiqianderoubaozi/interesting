@@ -8,7 +8,7 @@ public class main {
 
     public static void main(String[] args) {
 
-        int a = 16 >> 1;
+        int a = 8192  >> 10;
         System.out.println(a);
 
 
@@ -25,7 +25,11 @@ public class main {
         map.put(3, "1222");
         map.put(4, "533");
 
+
+
+
         System.out.println(map.get(list.get(0)));
+
 
     }
 }
