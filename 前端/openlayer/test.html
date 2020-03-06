@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css">
+
+</head>
+<script type="text/javascript">
+    var map, view;
+
+    function init() {
+        var format = 'image/png';
+        var wmsSource = new ol.source.ImageWMS({
+            ratio: 1,
+            url: 'http://localhost:8089/geoserver/china/wms',
+            params: {
+                'FORMAT': format,
+                'VERSION': '1.1.1',
+                "LAYERS": 'china:china',
+                "exceptions": 'application/vnd.ogc.se_inimage',
+            }
+        });
+
+        var tiled = new ol.layer.Tile({
+            visible: false,
+            source: new ol.source.TileWMS({
+                url: 'http://localhost:8089/geoserver/china/wms',
+                params: {
+                    'FORMAT': format,
+                    'VERSION': '1.1.1',
+                    tiled: true,
+                    "LAYERS": 'china:china',
+                    "exceptions": 'application/vnd.ogc.se_inimage',
+                    tilesOrigin: -1 + "," + -1
+                }
+            })
+        });
+
+        var wmsLayer = new ol.layer.Image({
+            source: wmsSource
+        });
+
+        view = new ol.View({
+            center: [111, 1],
+            zoom: 1
+        });
+
+        map = new ol.Map({
+            layers: [wmsLayer, tiled],
+            target: 'map',
+            view: view
+        });
+    }
+
+    function transfer() {
+        var size = map.getSize();
+        console.info(size)
+        view.centerOn([11.594226, -11.525058], size, [500, 500]);
+    }
+
+</script>
+<body onload="init()">
+<button id="11111dddd" onclick="transfer()">dddd</button>
+<div id="map" style="width: 700px;height: 400px"></div>
+</body>
+
+</html>
